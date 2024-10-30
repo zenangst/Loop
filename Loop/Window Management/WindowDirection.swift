@@ -13,7 +13,7 @@ enum WindowDirection: String, CaseIterable, Identifiable, Codable {
     var id: Self { self }
 
     // General Actions
-    case noAction = "NoAction", maximize = "Maximize", almostMaximize = "AlmostMaximize", fullscreen = "Fullscreen"
+    case noAction = "NoAction", maximize = "Maximize", almostMaximize = "AlmostMaximize", maximizeHeight = "MaximizeHeight", fullscreen = "Fullscreen"
     case undo = "Undo", initialFrame = "InitialFrame", hide = "Hide", minimize = "Minimize"
     case macOSCenter = "MacOSCenter", center = "Center"
 
@@ -54,7 +54,7 @@ enum WindowDirection: String, CaseIterable, Identifiable, Codable {
     case custom = "Custom", cycle = "Cycle"
 
     // These are used in the menubar resize submenu & keybind configuratio
-    static var general: [WindowDirection] { [.fullscreen, .maximize, .almostMaximize, .center, .macOSCenter, .minimize, .hide] }
+    static var general: [WindowDirection] { [.fullscreen, .maximize, .almostMaximize, .maximizeHeight, .center, .macOSCenter, .minimize, .hide] }
     static var halves: [WindowDirection] { [.topHalf, .verticalCenterHalf, .bottomHalf, .leftHalf, .horizontalCenterHalf, .rightHalf] }
     static var quarters: [WindowDirection] { [.topLeftQuarter, .topRightQuarter, .bottomLeftQuarter, .bottomRightQuarter] }
     static var horizontalThirds: [WindowDirection] { [.rightThird, .rightTwoThirds, .horizontalCenterThird, .leftTwoThirds, .leftThird] }
