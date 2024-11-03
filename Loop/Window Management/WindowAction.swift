@@ -249,6 +249,13 @@ private extension WindowAction {
                 width: window.frame.width,
                 height: bounds.height
             )
+        } else if direction == .maximizeWidth, let window {
+            result = CGRect(
+                x: bounds.minX,
+                y: window.frame.minY,
+                width: bounds.width,
+                height: window.frame.height
+            )
         }
 
         return result

@@ -20756,6 +20756,17 @@
         }
       }
     },
+    "Window Direction/Name: Maximize Width" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Maximize Width"
+          }
+        }
+      }
+    },
     "Window Direction/Name: Minimize" : {
       "extractionState" : "manual",
       "localizations" : {
