@@ -73,15 +73,15 @@ enum WindowDirection: String, CaseIterable, Identifiable, Codable {
     var willShrink: Bool { WindowDirection.shrink.contains(self) }
     var willGrow: Bool { WindowDirection.grow.contains(self) }
     var willMove: Bool { WindowDirection.move.contains(self) }
+    var willMaximize: Bool { [.fullscreen, .maximize, .almostMaximize, .maximizeHeight, .maximizeWidth].contains(self) }
+    var willCenter: Bool { [.center, .macOSCenter, .verticalCenterHalf, .horizontalCenterHalf].contains(self) }
 
     var hasRadialMenuAngle: Bool {
-        let noAngleActions: [WindowDirection] = [.noAction, .maximize, .center, .macOSCenter, .almostMaximize, .fullscreen, .minimize, .hide, .initialFrame, .undo, .cycle]
-        return !(noAngleActions.contains(self) || willChangeScreen || willAdjustSize || willShrink || willGrow || willMove)
+        let noAngleActions: [WindowDirection] = [.noAction, .minimize, .hide, .initialFrame, .undo, .cycle]
+        return !(noAngleActions.contains(self) || willChangeScreen || willAdjustSize || willShrink || willGrow || willMove || willMaximize || willCenter)
     }
 
-    var shouldFillRadialMenu: Bool {
-        [.maximize, .center, .macOSCenter, .almostMaximize, .fullscreen].contains(self)
-    }
+    var shouldFillRadialMenu: Bool { willMaximize || willCenter }
 
     var frameMultiplyValues: CGRect? {
         switch self {
