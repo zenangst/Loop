@@ -14,6 +14,7 @@ enum WindowDirection: String, CaseIterable, Identifiable, Codable {
 
     // General Actions
     case noAction = "NoAction", maximize = "Maximize", almostMaximize = "AlmostMaximize", fullscreen = "Fullscreen"
+    case maximizeHeight = "MaximizeHeight", maximizeWidth = "MaximizeWidth"
     case undo = "Undo", initialFrame = "InitialFrame", hide = "Hide", minimize = "Minimize"
     case macOSCenter = "MacOSCenter", center = "Center"
 
@@ -53,8 +54,8 @@ enum WindowDirection: String, CaseIterable, Identifiable, Codable {
     // Custom Actions
     case custom = "Custom", cycle = "Cycle"
 
-    // These are used in the menubar resize submenu & keybind configuratio
-    static var general: [WindowDirection] { [.fullscreen, .maximize, .almostMaximize, .center, .macOSCenter, .minimize, .hide] }
+    // These are used in the menubar resize submenu & keybind configuration
+    static var general: [WindowDirection] { [.fullscreen, .maximize, .almostMaximize, .maximizeHeight, .maximizeWidth, .center, .macOSCenter, .minimize, .hide] }
     static var halves: [WindowDirection] { [.topHalf, .verticalCenterHalf, .bottomHalf, .leftHalf, .horizontalCenterHalf, .rightHalf] }
     static var quarters: [WindowDirection] { [.topLeftQuarter, .topRightQuarter, .bottomLeftQuarter, .bottomRightQuarter] }
     static var horizontalThirds: [WindowDirection] { [.rightThird, .rightTwoThirds, .horizontalCenterThird, .leftTwoThirds, .leftThird] }
@@ -72,15 +73,15 @@ enum WindowDirection: String, CaseIterable, Identifiable, Codable {
     var willShrink: Bool { WindowDirection.shrink.contains(self) }
     var willGrow: Bool { WindowDirection.grow.contains(self) }
     var willMove: Bool { WindowDirection.move.contains(self) }
+    var willMaximize: Bool { [.fullscreen, .maximize, .almostMaximize, .maximizeHeight, .maximizeWidth].contains(self) }
+    var willCenter: Bool { [.center, .macOSCenter, .verticalCenterHalf, .horizontalCenterHalf].contains(self) }
 
     var hasRadialMenuAngle: Bool {
-        let noAngleActions: [WindowDirection] = [.noAction, .maximize, .center, .macOSCenter, .almostMaximize, .fullscreen, .minimize, .hide, .initialFrame, .undo, .cycle]
-        return !(noAngleActions.contains(self) || willChangeScreen || willAdjustSize || willShrink || willGrow || willMove)
+        let noAngleActions: [WindowDirection] = [.noAction, .minimize, .hide, .initialFrame, .undo, .cycle]
+        return !(noAngleActions.contains(self) || willChangeScreen || willAdjustSize || willShrink || willGrow || willMove || willMaximize || willCenter)
     }
 
-    var shouldFillRadialMenu: Bool {
-        [.maximize, .center, .macOSCenter, .almostMaximize, .fullscreen].contains(self)
-    }
+    var shouldFillRadialMenu: Bool { willMaximize || willCenter }
 
     var frameMultiplyValues: CGRect? {
         switch self {

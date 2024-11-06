@@ -19,6 +19,10 @@ extension WindowAction {
             Image(systemName: "eye.slash.fill")
         case .minimize:
             Image(systemName: "arrow.down.right.and.arrow.up.left")
+        case .maximizeHeight:
+            Image(systemName: "arrow.up.and.down")
+        case .maximizeWidth:
+            Image(systemName: "arrow.left.and.right")
         case .nextScreen:
             Image(systemName: "forward.fill")
         case .previousScreen:
