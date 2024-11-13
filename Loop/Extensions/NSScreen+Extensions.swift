@@ -51,7 +51,9 @@ extension NSScreen {
     var stageStripFreeFrame: NSRect {
         var frame = visibleFrame
 
-        if Defaults[.respectStageManager], SystemWindowManager.StageManager.enabled, SystemWindowManager.StageManager.enabled {
+        if Defaults[.respectStageManager],
+           SystemWindowManager.StageManager.enabled,
+           SystemWindowManager.StageManager.shown {
             if SystemWindowManager.StageManager.position == .leading {
                 frame.origin.x += Defaults[.stageStripSize]
             }
