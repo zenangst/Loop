@@ -8,6 +8,22 @@
 import Luminare
 import SwiftUI
 
+/// Unlock Flow:
+/// - Developer: 0 Loops **(Debug builds only)**
+/// - Classic: 0 Loops
+/// - Holo: 25 Loops
+/// - Rosé Pine: 50 Loops
+/// - Meta Loop: 100 Loops
+/// - Keycap: 200 Loops
+/// - White: 400 Loops
+/// - Black: 500 Loops
+/// - Daylight: 1000 Loops
+/// - Neon: 1500 Loops
+/// - Synthwave Sunset: 2000 Loops
+/// - Black Hole: 2500 Loops
+/// - Summer: 3000 Loops
+/// - Master: 5000 Loops
+
 struct Icon: Hashable, LuminarePickerData {
     var name: String
     var iconName: String
@@ -28,7 +44,7 @@ struct Icon: Hashable, LuminarePickerData {
             .keycap,
             .white,
             .black,
-            .simon,
+            .daylight,
             .neon,
             .synthwaveSunset,
             .blackHole,
@@ -44,7 +60,7 @@ struct Icon: Hashable, LuminarePickerData {
             .keycap,
             .white,
             .black,
-            .simon,
+            .daylight,
             .neon,
             .synthwaveSunset,
             .blackHole,
@@ -116,11 +132,6 @@ extension Icon {
 // MARK: - Greg Lassale
 
 extension Icon {
-    static let simon = Icon(
-        name: .init(localized: .init("Icon Name: Simon", defaultValue: "Simon")),
-        iconName: "AppIcon-Simon",
-        unlockTime: 1000
-    )
     static let neon = Icon(
         name: .init(localized: .init("Icon Name: Neon", defaultValue: "Neon")),
         iconName: "AppIcon-Neon",
@@ -151,5 +162,15 @@ extension Icon {
         name: .init(localized: .init("Icon Name: Summer", defaultValue: "Summer")),
         iconName: "AppIcon-Summer",
         unlockTime: 3000
+    )
+}
+
+// MARK: - 0w0x
+
+extension Icon {
+    static let daylight = Icon(
+        name: .init(localized: .init("Icon Name: Daylight", defaultValue: "Daylight")),
+        iconName: "AppIcon-Daylight",
+        unlockTime: 1000
     )
 }

@@ -68,10 +68,12 @@ If your language is not listed, it may not yet be localised! Interested in helpi
   - Synthwave Sunset
   - Black Hole
   - Neon
-  - Simon
-- [@N-coder82](https://github.com/N-coder82)
+  - Simon (Retired)
+- [**@N-coder82**](https://github.com/N-coder82)
   - Developer
   - Sunset
+- [**@0w0x**](https://github.com/0w0x)
+  - Daylight
 
 ## Documentation
 
