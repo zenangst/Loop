@@ -172,6 +172,10 @@ struct WindowAction: Codable, Identifiable, Hashable, Equatable, Defaults.Serial
             LoopManager.lastTargetFrame = result
         }
 
+        if result.size.width < 0 || result.size.height < 0 {
+            result = CGRect(origin: bounds.center, size: .zero)
+        }
+
         return result
     }
 }
