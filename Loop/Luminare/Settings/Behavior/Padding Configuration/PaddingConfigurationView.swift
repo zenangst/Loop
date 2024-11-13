@@ -110,8 +110,7 @@ struct PaddingConfigurationView: View {
             ),
             sliderRange: range,
             suffix: "px",
-            lowerClamp: true,
-            upperClamp: true
+            lowerClamp: true
         )
     }
 
@@ -123,7 +122,6 @@ struct PaddingConfigurationView: View {
                 sliderRange: range,
                 suffix: "px",
                 lowerClamp: true,
-                upperClamp: true,
                 controlSize: .compact
             )
             LuminareValueAdjuster(
@@ -132,7 +130,6 @@ struct PaddingConfigurationView: View {
                 sliderRange: range,
                 suffix: "px",
                 lowerClamp: true,
-                upperClamp: true,
                 controlSize: .compact
             )
             LuminareValueAdjuster(
@@ -141,7 +138,6 @@ struct PaddingConfigurationView: View {
                 sliderRange: range,
                 suffix: "px",
                 lowerClamp: true,
-                upperClamp: true,
                 controlSize: .compact
             )
             LuminareValueAdjuster(
@@ -150,7 +146,6 @@ struct PaddingConfigurationView: View {
                 sliderRange: range,
                 suffix: "px",
                 lowerClamp: true,
-                upperClamp: true,
                 controlSize: .compact
             )
         }
