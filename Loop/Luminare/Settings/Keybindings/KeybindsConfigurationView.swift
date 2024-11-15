@@ -1,5 +1,5 @@
 //
-//  KeybindingsConfiguration.swift
+//  KeybindsConfigurationView.swift
 //  Loop
 //
 //  Created by Kai Azim on 2024-04-20.
@@ -9,7 +9,7 @@ import Defaults
 import Luminare
 import SwiftUI
 
-class KeybindingsConfigurationModel: ObservableObject {
+class KeybindsConfigurationModel: ObservableObject {
     @Published var triggerKey = Defaults[.triggerKey] {
         didSet { Defaults[.triggerKey] = triggerKey }
     }
@@ -34,8 +34,8 @@ class KeybindingsConfigurationModel: ObservableObject {
     @Published var selectedKeybinds = Set<WindowAction>()
 }
 
-struct KeybindingsConfigurationView: View {
-    @StateObject private var model = KeybindingsConfigurationModel()
+struct KeybindsConfigurationView: View {
+    @StateObject private var model = KeybindsConfigurationModel()
 
     var body: some View {
         LuminareSection("Trigger Key", noBorder: true) {
@@ -69,7 +69,7 @@ struct KeybindingsConfigurationView: View {
                 NotificationCenter.default.post(name: .keybindsUpdated, object: nil)
             },
             content: { keybind in
-                KeybindingItemView(keybind)
+                KeybindItemView(keybind)
                     .environmentObject(model)
             },
             emptyView: {

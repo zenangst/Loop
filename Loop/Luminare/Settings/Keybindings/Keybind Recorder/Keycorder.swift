@@ -11,7 +11,7 @@ import Luminare
 import SwiftUI
 
 struct Keycorder: View {
-    @EnvironmentObject private var model: KeybindingsConfigurationModel
+    @EnvironmentObject private var model: KeybindsConfigurationModel
 
     let keyLimit: Int = 6
 

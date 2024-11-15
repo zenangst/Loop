@@ -49,11 +49,11 @@ struct CycleActionConfigurationView: View {
                 action.cycle?.insert(.init(.noAction), at: 0)
             },
             content: { item in
-                KeybindingItemView(
+                KeybindItemView(
                     item,
                     cycleIndex: action.cycle?.firstIndex(of: item.wrappedValue)
                 )
-                .environmentObject(KeybindingsConfigurationModel())
+                .environmentObject(KeybindsConfigurationModel())
             },
             emptyView: {
                 HStack {

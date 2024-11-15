@@ -1,5 +1,5 @@
 //
-//  KeybindingItem.swift
+//  KeybindItemView.swift
 //  Loop
 //
 //  Created by Kai Azim on 2024-05-03.
@@ -9,7 +9,7 @@ import Defaults
 import Luminare
 import SwiftUI
 
-struct KeybindingItemView: View {
+struct KeybindItemView: View {
     @Environment(\.hoveringOverLuminareItem) var isHovering
 
     @Default(.triggerKey) var triggerKey

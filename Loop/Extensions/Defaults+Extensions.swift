@@ -50,7 +50,7 @@ extension Defaults.Keys {
     static let respectStageManager = Key<Bool>("respectStageManager", default: true, iCloud: true)
     static let stageStripSize = Key<CGFloat>("stageStripSize", default: 150, iCloud: true)
 
-    // Keybindings
+    // Keybinds
     static let triggerKey = Key<Set<CGKeyCode>>("trigger", default: [.kVK_Function], iCloud: true)
     static let triggerDelay = Key<Double>("triggerDelay", default: 0, iCloud: true)
     static let doubleClickToTrigger = Key<Bool>("doubleClickToTrigger", default: false, iCloud: true)

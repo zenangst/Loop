@@ -111,8 +111,8 @@ struct WindowAction: Codable, Identifiable, Hashable, Equatable, Defaults.Serial
     }
 
     static func getAction(for keybind: Set<CGKeyCode>) -> WindowAction? {
-        for keybinding in Defaults[.keybinds] where keybinding.keybind == keybind {
-            return keybinding
+        for item in Defaults[.keybinds] where item.keybind == keybind {
+            return item
         }
         return nil
     }

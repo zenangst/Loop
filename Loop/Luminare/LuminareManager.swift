@@ -23,7 +23,7 @@ enum Tab: LuminareTabItem, CaseIterable {
     case preview
 
     case behavior
-    case keybindings
+    case keybinds
 
     case advanced
     case excludedApps
@@ -36,7 +36,7 @@ enum Tab: LuminareTabItem, CaseIterable {
         case .radialMenu: .init(localized: "Settings tab: Radial Menu", defaultValue: "Radial Menu")
         case .preview: .init(localized: "Settings tab: Preview", defaultValue: "Preview")
         case .behavior: .init(localized: "Settings tab: Behavior", defaultValue: "Behavior")
-        case .keybindings: .init(localized: "Settings tab: Keybindings", defaultValue: "Keybindings")
+        case .keybinds: .init(localized: "Settings tab: Keybindings", defaultValue: "Keybinds")
         case .advanced: .init(localized: "Settings tab: Advanced", defaultValue: "Advanced")
         case .excludedApps: .init(localized: "Settings tab: Excluded Apps", defaultValue: "Excluded Apps")
         case .about: .init(localized: "Settings tab: About", defaultValue: "About")
@@ -50,7 +50,7 @@ enum Tab: LuminareTabItem, CaseIterable {
         case .radialMenu: Image(.loop)
         case .preview: Image(._18PxSidebarRight2)
         case .behavior: Image(._18PxGear)
-        case .keybindings: Image(._18PxCommand)
+        case .keybinds: Image(._18PxCommand)
         case .advanced: Image(._18PxFaceNerdSmile)
         case .excludedApps: Image(._18PxWindowLock)
         case .about: Image(._18PxMsgSmile2)
@@ -71,7 +71,7 @@ enum Tab: LuminareTabItem, CaseIterable {
         case .radialMenu: RadialMenuConfigurationView()
         case .preview: PreviewConfigurationView()
         case .behavior: BehaviorConfigurationView()
-        case .keybindings: KeybindingsConfigurationView()
+        case .keybinds: KeybindsConfigurationView()
         case .advanced: AdvancedConfigurationView()
         case .excludedApps: ExcludedAppsConfigurationView()
         case .about: AboutConfigurationView()
@@ -79,7 +79,7 @@ enum Tab: LuminareTabItem, CaseIterable {
     }
 
     static let theming: [Tab] = [.icon, .accentColor, .radialMenu, .preview]
-    static let settings: [Tab] = [.behavior, .keybindings]
+    static let settings: [Tab] = [.behavior, .keybinds]
     static let loop: [Tab] = [.advanced, .excludedApps, .about]
 }
 
