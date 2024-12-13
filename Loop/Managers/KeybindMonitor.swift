@@ -14,6 +14,7 @@ class KeybindMonitor {
     private var eventMonitor: CGEventMonitor?
     private var flagsEventMonitor: CGEventMonitor?
     private var pressedKeys = Set<CGKeyCode>()
+    private var lastKey: CGKeyCode?
     private var lastKeyReleaseTime: Date = .now
 
     // Currently, special events only contain the globe key, as it can also be used as a emoji key.
@@ -22,6 +23,7 @@ class KeybindMonitor {
 
     func resetPressedKeys() {
         KeybindMonitor.shared.pressedKeys = []
+        lastKey = nil
     }
 
     func start() {
@@ -42,6 +44,7 @@ class KeybindMonitor {
                 KeybindMonitor.shared.pressedKeys.remove(event.keyCode.baseKey)
             } else if event.type == .keyDown {
                 KeybindMonitor.shared.pressedKeys.insert(event.keyCode.baseKey)
+                KeybindMonitor.shared.lastKey = event.keyCode.baseKey
             }
 
             // Special events such as the emoji key
@@ -58,7 +61,7 @@ class KeybindMonitor {
             }
 
             // If this wasn't, check if it was a system keybind (ex. screenshot), and
-            // in that case, passthrough and foce-close Loop
+            // in that case, passthrough and force-close Loop
             if CGKeyCode.systemKeybinds.contains(self.pressedKeys) {
                 Notification.Name.forceCloseLoop.post()
                 print("Detected system keybind, closing!")
@@ -120,7 +123,15 @@ class KeybindMonitor {
         if let newAction = WindowAction.getAction(for: pressedKeys) {
             if !event.isARepeat || newAction.willManipulateExistingWindowFrame {
                 Notification.Name.updateBackendDirection.post(userInfo: ["action": newAction])
-                print("performKeybind: returning true due to valid event: \(newAction.direction)")
+                print("performKeybind: returning true due to valid event: \(newAction.direction)", #line)
+            }
+
+            return true
+        } else if let lastKey, let newAction = WindowAction.getAction(for: [lastKey]) {
+            // If multiple keys have been added to `pressedKeys` and none of the keybinds match, fall back to searching for the last single key.
+            if !event.isARepeat || newAction.willManipulateExistingWindowFrame {
+                Notification.Name.updateBackendDirection.post(userInfo: ["action": newAction])
+                print("performKeybind: returning true due to valid event: \(newAction.direction)", #line)
             }
 
             return true
