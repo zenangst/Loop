@@ -37,6 +37,8 @@ extension WindowAction {
         SavedWindowActionFormat(direction: direction, keybind: keybind, name: name, unit: unit, anchor: anchor, sizeMode: sizeMode, width: width, height: height, positionMode: positionMode, xPoint: xPoint, yPoint: yPoint, cycle: cycle?.map { $0.convertToSavedWindowActionFormat() })
     }
 
+    // MARK: Export
+
     /// Presents a prompt to export current keybinds to a JSON file.
     static func exportPrompt() {
         // Check if there are any keybinds to export.
@@ -73,7 +75,7 @@ extension WindowAction {
         let savePanel = NSSavePanel()
         savePanel.directoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
         savePanel.title = .init(localized: "Export keybinds")
-        savePanel.nameFieldStringValue = "keybinds.json"
+        savePanel.nameFieldStringValue = "Loop Keybinds.json"
         savePanel.allowedContentTypes = [.json]
 
         savePanel.beginSheetModal(for: NSApplication.shared.mainWindow!) { result in
@@ -86,11 +88,14 @@ extension WindowAction {
         }
     }
 
+    // MARK: Import
+
     /// Presents a prompt to import keybinds from a JSON file.
     static func importPrompt() {
         let openPanel = NSOpenPanel()
-        openPanel.title = .init(localized: "Select Loop keybinds file")
+        openPanel.title = .init(localized: "Select a keybinds file")
         openPanel.allowedContentTypes = [.json]
+
         openPanel.beginSheetModal(for: NSApplication.shared.mainWindow!) { result in
             guard result == .OK, let selectedFileURL = openPanel.url else { return }
             do {
@@ -104,43 +109,70 @@ extension WindowAction {
 
     /// Imports keybinds from a JSON string.
     private static func importKeybinds(from jsonString: String) {
-        do {
-            guard let keybindsData = jsonString.data(using: .utf8) else { return }
-            let decoder = JSONDecoder()
-            let importedKeybinds = try decoder.decode([SavedWindowActionFormat].self, from: keybindsData)
-            updateDefaults(with: importedKeybinds)
-        } catch {
-            showAlert(
-                .init(
-                    localized: "Error reading keybinds alert title",
-                    defaultValue: "Error Reading Keybinds"
-                ),
-                informativeText: .init(
-                    localized: "Error reading keybinds alert description",
-                    defaultValue: "Make sure the file you selected is in the correct format."
-                )
+        if importLoopKeybinds(from: jsonString) { return }
+        if importRectangleKeybinds(from: jsonString) { return }
+
+        // If both attempts fail, show an error alert.
+        showAlert(
+            .init(
+                localized: "Error reading keybinds alert title",
+                defaultValue: "Error Reading Keybinds"
+            ),
+            informativeText: .init(
+                localized: "Error reading keybinds alert description",
+                defaultValue: "Make sure the file you selected is in the correct format."
             )
+        )
+    }
+
+    /// Tries to import Loop's keybinds format.
+    private static func importLoopKeybinds(from jsonString: String) -> Bool {
+        print("Attempting to import Loop keybinds...")
+
+        guard let data = jsonString.data(using: .utf8) else { return false }
+
+        do {
+            let decoder = JSONDecoder()
+            let importedKeybinds = try decoder.decode([SavedWindowActionFormat].self, from: data)
+            let windowActions = importedKeybinds.map { $0.convertToWindowAction() }
+            updateDefaults(with: windowActions)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Tries to import Rectangle's keybinds format.
+    private static func importRectangleKeybinds(from jsonString: String) -> Bool {
+        print("Attempting to import Rectangle keybinds...")
+
+        do {
+            let importedKeybinds = try RectangleTranslationLayer.importKeybinds(from: jsonString)
+            updateDefaults(with: importedKeybinds)
+            return true
+        } catch {
+            return false
         }
     }
 
     /// Updates the app's defaults with the imported keybinds.
-    private static func updateDefaults(with importedKeybinds: [SavedWindowActionFormat]) {
+    private static func updateDefaults(with actions: [WindowAction]) {
         if Defaults[.keybinds].isEmpty {
-            Defaults[.keybinds] = importedKeybinds.map { $0.convertToWindowAction() }
+            Defaults[.keybinds] = actions
             // Post a notification after updating the keybinds
             NotificationCenter.default.post(name: .keybindsUpdated, object: nil)
         } else {
             showAlertForImportDecision { decision in
                 switch decision {
                 case .merge:
-                    let newKeybinds = importedKeybinds.filter { savedKeybind in
+                    let newKeybinds = actions.filter { savedKeybind in
                         !Defaults[.keybinds].contains { $0.keybind == savedKeybind.keybind && $0.name == savedKeybind.name }
                     }
-                    Defaults[.keybinds].append(contentsOf: newKeybinds.map { $0.convertToWindowAction() })
+                    Defaults[.keybinds].append(contentsOf: newKeybinds)
                     // Post a notification after updating the keybinds
                     NotificationCenter.default.post(name: .keybindsUpdated, object: nil)
                 case .erase:
-                    Defaults[.keybinds] = importedKeybinds.map { $0.convertToWindowAction() }
+                    Defaults[.keybinds] = actions
                     // Post a notification after updating the keybinds
                     NotificationCenter.default.post(name: .keybindsUpdated, object: nil)
                 case .cancel:

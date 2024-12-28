@@ -17963,6 +17963,9 @@
         }
       }
     },
+    "Select a keybinds file" : {
+
+    },
     "Select Loop keybinds file" : {
       "extractionState" : "manual",
       "localizations" : {

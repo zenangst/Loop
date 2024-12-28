@@ -114,13 +114,6 @@ struct AdvancedConfigurationView: View {
             }
         }
 
-        LuminareSection {
-            Button("Import keybinds from Rectangle") {
-                RectangleTranslationLayer.initiateImportProcess()
-            }
-            .buttonStyle(LuminareButtonStyle())
-        }
-
         LuminareSection("Permissions") {
             accessibilityComponent()
             screenCaptureComponent()
