@@ -12,7 +12,10 @@ import SwiftUI
 
 class AdvancedConfigurationModel: ObservableObject {
     @Published var useSystemWindowManagerWhenAvailable = Defaults[.useSystemWindowManagerWhenAvailable] {
-        didSet { Defaults[.useSystemWindowManagerWhenAvailable] = useSystemWindowManagerWhenAvailable }
+        didSet {
+            Defaults[.useSystemWindowManagerWhenAvailable] = useSystemWindowManagerWhenAvailable
+            Notification.Name.systemWindowManagerStateChanged.post()
+        }
     }
 
     @Published var animateWindowResizes = Defaults[.animateWindowResizes] {

@@ -30,7 +30,7 @@ enum WindowEngine {
             window.activate()
         }
 
-        if #available(macOS 15, *), Defaults[.useSystemWindowManagerWhenAvailable] {
+        if #available(macOS 15, *), Defaults[.useSystemWindowManagerWhenAvailable], !willChangeScreens {
             SystemWindowManager.MoveAndResize.syncPadding()
 
             // System resizes seem to only be able to be performed on the frontmost app

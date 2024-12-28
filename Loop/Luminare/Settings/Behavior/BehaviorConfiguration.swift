@@ -124,6 +124,9 @@ struct BehaviorConfigurationView: View {
                 }
             }
         }
+        .onReceive(.systemWindowManagerStateChanged) { _ in
+            model.useSystemWindowManagerWhenAvailable = Defaults[.useSystemWindowManagerWhenAvailable]
+        }
 
         LuminareSection("Cursor") {
             LuminareToggle("Use screen with cursor", isOn: $model.useScreenWithCursor)
