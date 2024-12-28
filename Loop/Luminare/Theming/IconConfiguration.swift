@@ -181,6 +181,7 @@ struct IconVew: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .contentTransition(.numericText())
+                        .multilineTextAlignment(.center)
 
                         Spacer()
                     }
