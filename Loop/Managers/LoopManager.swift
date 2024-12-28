@@ -103,6 +103,13 @@ private extension LoopManager {
             return
         }
 
+        // Record the first frame in advance if the preview window is disabled
+        if let targetWindow,
+           !WindowRecords.hasBeenRecorded(targetWindow),
+           !Defaults[.previewVisibility] {
+            WindowRecords.recordFirst(for: targetWindow)
+        }
+
         // Only recalculate wallpaper colors if Loop was last triggered over 5 seconds ago
         if Defaults[.processWallpaper], lastLoopActivation.distance(to: .now) > 5.0 {
             Task {
@@ -160,22 +167,23 @@ private extension LoopManager {
 
         currentlyPressedModifiers = []
 
-        if targetWindow != nil,
-           screenToResizeOn != nil,
+        if let targetWindow,
+           let screenToResizeOn,
            forceClose == false,
            currentAction.direction != .noAction,
            isLoopActive {
-            if let screenToResizeOn,
-               Defaults[.previewVisibility] {
+            if Defaults[.previewVisibility] {
                 WindowEngine.resize(
-                    targetWindow!,
+                    targetWindow,
                     to: currentAction,
                     on: screenToResizeOn
                 )
+            } else {
+                WindowRecords.record(
+                    targetWindow,
+                    currentAction
+                )
             }
-
-            // This rotates the menubar icon
-            Notification.Name.didLoop.post()
 
             // Icon stuff
             Defaults[.timesLooped] += 1
@@ -403,7 +411,8 @@ private extension LoopManager {
                     WindowEngine.resize(
                         window,
                         to: currentAction,
-                        on: screenToResizeOn
+                        on: screenToResizeOn,
+                        shouldRecord: false
                     )
                 }
             }
@@ -433,7 +442,8 @@ private extension LoopManager {
                     WindowEngine.resize(
                         window,
                         to: self.currentAction,
-                        on: screenToResizeOn
+                        on: screenToResizeOn,
+                        shouldRecord: false
                     )
                 }
             }

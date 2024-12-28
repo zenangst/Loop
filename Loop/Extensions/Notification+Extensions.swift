@@ -12,7 +12,6 @@ extension Notification.Name {
     static let updateUIDirection = Notification.Name("updateUIDirection")
 
     static let forceCloseLoop = Notification.Name("forceCloseLoop")
-    static let didLoop = Notification.Name("didLoop")
     static let activeStateChanged = Notification.Name("activeStateChanged")
 
     static let systemWindowManagerStateChanged = Notification.Name("systemWindowManagerStateChanged")
