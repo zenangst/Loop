@@ -160,22 +160,23 @@ private extension LoopManager {
 
         currentlyPressedModifiers = []
 
-        if targetWindow != nil,
-           screenToResizeOn != nil,
+        if let targetWindow,
+           let screenToResizeOn,
            forceClose == false,
            currentAction.direction != .noAction,
            isLoopActive {
-            if let screenToResizeOn,
-               Defaults[.previewVisibility] {
+            if Defaults[.previewVisibility] {
                 WindowEngine.resize(
-                    targetWindow!,
+                    targetWindow,
                     to: currentAction,
                     on: screenToResizeOn
                 )
+            } else {
+                WindowRecords.record(
+                    targetWindow,
+                    currentAction
+                )
             }
-
-            // This rotates the menubar icon
-            Notification.Name.didLoop.post()
 
             // Icon stuff
             Defaults[.timesLooped] += 1
@@ -403,7 +404,8 @@ private extension LoopManager {
                     WindowEngine.resize(
                         window,
                         to: currentAction,
-                        on: screenToResizeOn
+                        on: screenToResizeOn,
+                        shouldRecord: false
                     )
                 }
             }
@@ -433,7 +435,8 @@ private extension LoopManager {
                     WindowEngine.resize(
                         window,
                         to: self.currentAction,
-                        on: screenToResizeOn
+                        on: screenToResizeOn,
+                        shouldRecord: false
                     )
                 }
             }

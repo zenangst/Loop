@@ -14,10 +14,12 @@ enum WindowEngine {
     ///   - window: Window to be resized
     ///   - direction: WindowDirection
     ///   - screen: Screen the window should be resized on
+    ///   - shouldRecord: only set to false when preview window is disabled (so live preview)
     static func resize(
         _ window: Window,
         to action: WindowAction,
-        on screen: NSScreen
+        on screen: NSScreen,
+        shouldRecord: Bool = true
     ) {
         guard action.direction != .noAction else { return }
         let willChangeScreens = ScreenManager.screenContaining(window) != screen
@@ -30,34 +32,6 @@ enum WindowEngine {
             window.activate()
         }
 
-        if #available(macOS 15, *), Defaults[.useSystemWindowManagerWhenAvailable], !willChangeScreens {
-            SystemWindowManager.MoveAndResize.syncPadding()
-
-            // System resizes seem to only be able to be performed on the frontmost app
-            if let systemAction = action.direction.systemEquivalent, let app = window.nsRunningApplication,
-               app == NSWorkspace.shared.frontmostApplication, let axMenuItem = try? systemAction.getItem(for: app) {
-                try? axMenuItem.performAction(.press)
-                WindowRecords.record(window, action)
-                return
-            } else {
-                print("System action not available for \(action.direction)")
-            }
-        }
-
-        // If window hasn't been recorded yet, record it, so that the user can undo the action
-        if !WindowRecords.hasBeenRecorded(window) {
-            WindowRecords.recordFirst(for: window)
-        }
-
-        // If the action is fullscreen, toggle fullscreen then return
-        if action.direction == .fullscreen {
-            window.toggleFullscreen()
-            WindowRecords.record(window, action)
-            return
-        }
-        // Otherwise, we obviously need to disable fullscreen to resize the window
-        window.fullscreen = false
-
         // If the action is to hide or minimize, perform the action then return
         if action.direction == .hide {
             window.toggleHidden()
@@ -68,6 +42,32 @@ enum WindowEngine {
             window.toggleMinimized()
             return
         }
+
+        if shouldRecord {
+            WindowRecords.record(window, action)
+        }
+
+        if #available(macOS 15, *), Defaults[.useSystemWindowManagerWhenAvailable], !willChangeScreens {
+            SystemWindowManager.MoveAndResize.syncPadding()
+
+            // System resizes seem to only be able to be performed on the frontmost app
+            if let systemAction = action.direction.systemEquivalent, let app = window.nsRunningApplication,
+               app == NSWorkspace.shared.frontmostApplication, let axMenuItem = try? systemAction.getItem(for: app) {
+                try? axMenuItem.performAction(.press)
+                return
+            } else {
+                print("System action not available for \(action.direction)")
+            }
+        }
+
+        // If the action is fullscreen, toggle fullscreen then return
+        if action.direction == .fullscreen {
+            window.toggleFullscreen()
+            return
+        }
+
+        // Otherwise, we obviously need to disable fullscreen to resize the window
+        window.fullscreen = false
 
         // Calculate the target frame
         let targetFrame = action.getFrame(window: window, bounds: screen.safeScreenFrame, screen: screen)
@@ -81,8 +81,6 @@ enum WindowEngine {
         // If enhancedUI is enabled, then window animations will likely lag a LOT. So, if it's enabled, force-disable animations
         let enhancedUI = window.enhancedUserInterface
         let animate = Defaults[.animateWindowResizes] && !enhancedUI
-
-        WindowRecords.record(window, action)
 
         // If the window is one of Loop's windows, resize it using the actual NSWindow, preventing crashes
         if window.nsRunningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier,
