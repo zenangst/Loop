@@ -9,6 +9,18 @@ import AppKit
 import Defaults
 import Foundation
 
+/// Represents an error that can occur in the RectangleTranslationLayer.
+enum RectangleTranslationLayerError: Error {
+    case dataLoadFailed
+
+    var localizedString: String {
+        switch self {
+        case .dataLoadFailed:
+            "Failed to convert string to data."
+        }
+    }
+}
+
 /// Represents a keyboard shortcut configuration for a Rectangle action.
 struct RectangleShortcut: Codable {
     let keyCode: Int
@@ -42,10 +54,24 @@ enum RectangleTranslationLayer {
         "topRight": .topRightQuarter
     ]
 
+    /// Imports the keybinds from a JSON string.
+    /// - Parameter jsonString: The JSON string to import the keybinds from.
+    /// - Returns: An array of WindowAction instances corresponding to the keybinds.
+    static func importKeybinds(from jsonString: String) throws -> [WindowAction] {
+        guard let data = jsonString.data(using: .utf8) else {
+            throw RectangleTranslationLayerError.dataLoadFailed
+        }
+
+        let rectangleConfig = try JSONDecoder().decode(RectangleConfig.self, from: data)
+        let windowActions = translateRectangleConfigToWindowActions(rectangleConfig: rectangleConfig)
+
+        return windowActions
+    }
+
     /// Translates the RectangleConfig to an array of WindowActions for Loop.
     /// - Parameter rectangleConfig: The RectangleConfig instance to translate.
     /// - Returns: An array of WindowAction instances corresponding to the RectangleConfig.
-    static func translateRectangleConfigToWindowActions(rectangleConfig: RectangleConfig) -> [WindowAction] {
+    private static func translateRectangleConfigToWindowActions(rectangleConfig: RectangleConfig) -> [WindowAction] {
         // Converts the Rectangle shortcuts into Loop's WindowActions.
         rectangleConfig.shortcuts.compactMap { direction, shortcut in
             guard let loopDirection = directionMapping[direction], !direction.contains("Todo") else { return nil }
@@ -55,44 +81,5 @@ enum RectangleTranslationLayer {
                 name: direction.capitalized.replacingOccurrences(of: " ", with: "") + "Cycle"
             )
         }
-    }
-
-    /// Initiates the import process for the RectangleConfig.json file.
-    static func importRectangleConfig() {
-        let openPanel = NSOpenPanel()
-        openPanel.prompt = .init(localized: "Import from Rectangle", defaultValue: "Select Rectangle config file")
-        openPanel.allowedContentTypes = [.json]
-
-        // Presents a file open panel to the user.
-        openPanel.begin { response in
-            guard response == .OK, let selectedFile = openPanel.url else { return }
-
-            // Attempts to decode the selected file into a RectangleConfig object.
-            if let rectangleConfig = try? JSONDecoder().decode(RectangleConfig.self, from: Data(contentsOf: selectedFile)) {
-                let windowActions = translateRectangleConfigToWindowActions(rectangleConfig: rectangleConfig)
-                saveWindowActions(windowActions)
-            } else {
-                print("Error reading or translating RectangleConfig.json")
-            }
-        }
-    }
-
-    /// Saves the translated WindowActions into Loop's configuration and posts a notification.
-    /// - Parameter windowActions: The array of WindowActions to save.
-    static func saveWindowActions(_ windowActions: [WindowAction]) {
-        for action in windowActions {
-            print("Direction: \(action.direction), Keybind: \(action.keybind), Name: \(action.name ?? "")")
-        }
-
-        // Stores the WindowActions into Loop's configuration.
-        Defaults[.keybinds] = windowActions
-
-        // Post a notification after saving the new keybinds
-        NotificationCenter.default.post(name: .keybindsUpdated, object: nil)
-    }
-
-    /// Starts the import process for Rectangle configuration.
-    static func initiateImportProcess() {
-        importRectangleConfig()
     }
 }

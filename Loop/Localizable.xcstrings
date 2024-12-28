@@ -17963,6 +17963,9 @@
         }
       }
     },
+    "Select a keybinds file" : {
+
+    },
     "Select Loop keybinds file" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -20426,6 +20429,9 @@
           }
         }
       }
+    },
+    "There are other keybinds that conflict with this key combination." : {
+
     },
     "Thickness" : {
       "extractionState" : "manual",

@@ -17,6 +17,9 @@ extension Notification.Name {
 
     static let keybindsUpdated = Notification.Name("keybindsUpdated")
 
+    static let didImportKeybindsSuccessfully = Notification.Name("didImportKeybindsSuccessfully")
+    static let didExportKeybindsSuccessfully = Notification.Name("didExportKeybindsSuccessfully")
+
     @discardableResult
     func onReceive(object: Any? = nil, using: @escaping (Notification) -> ()) -> NSObjectProtocol {
         NotificationCenter.default.addObserver(
