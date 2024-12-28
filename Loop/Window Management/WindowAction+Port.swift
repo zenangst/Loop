@@ -160,8 +160,10 @@ extension WindowAction {
     private static func updateDefaults(with actions: [WindowAction]) {
         if Defaults[.keybinds].isEmpty {
             Defaults[.keybinds] = actions
+
             // Post a notification after updating the keybinds
-            NotificationCenter.default.post(name: .keybindsUpdated, object: nil)
+            Notification.Name.keybindsUpdated.post()
+            Notification.Name.didImportKeybindsSuccessfully.post()
         } else {
             showAlertForImportDecision { decision in
                 switch decision {

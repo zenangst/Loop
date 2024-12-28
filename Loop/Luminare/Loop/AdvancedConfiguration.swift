@@ -41,6 +41,7 @@ class AdvancedConfigurationModel: ObservableObject {
 
     @Published var didImportSuccessfullyAlert = false
     @Published var didExportSuccessfullyAlert = false
+    @Published var didResetSuccessfullyAlert = false
 
     @Published var isAccessibilityAccessGranted = AccessibilityManager.getStatus()
     @Published var isScreenCaptureAccessGranted = ScreenCaptureManager.getStatus()
@@ -54,7 +55,7 @@ class AdvancedConfigurationModel: ObservableObject {
             }
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             withAnimation(.smooth(duration: 0.5)) {
                 self?.didImportSuccessfullyAlert = false
             }
@@ -68,9 +69,23 @@ class AdvancedConfigurationModel: ObservableObject {
             }
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             withAnimation(.smooth(duration: 0.5)) {
                 self?.didExportSuccessfullyAlert = false
+            }
+        }
+    }
+
+    func resetSuccessfully() {
+        DispatchQueue.main.async { [weak self] in
+            withAnimation(.smooth(duration: 0.5)) {
+                self?.didResetSuccessfullyAlert = true
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            withAnimation(.smooth(duration: 0.5)) {
+                self?.didResetSuccessfullyAlert = false
             }
         }
     }
@@ -151,6 +166,9 @@ struct AdvancedConfigurationView: View {
                         }
                     }
                 }
+                .onReceive(.didImportKeybindsSuccessfully) { _ in
+                    model.importedSuccessfully()
+                }
 
                 Button {
                     WindowAction.exportPrompt()
@@ -165,18 +183,27 @@ struct AdvancedConfigurationView: View {
                         }
                     }
                 }
+                .onReceive(.didExportKeybindsSuccessfully) { _ in
+                    model.exportedSuccessfully()
+                }
 
-                Button("Reset") {
+                Button {
                     Defaults.reset(.keybinds)
+                    model.resetSuccessfully()
+                    Notification.Name.keybindsUpdated.post()
+                } label: {
+                    HStack {
+                        Text("Reset")
+
+                        if model.didResetSuccessfullyAlert {
+                            Image(systemName: "checkmark")
+                                .foregroundStyle(tintColor())
+                                .bold()
+                        }
+                    }
                 }
                 .buttonStyle(LuminareDestructiveButtonStyle())
             }
-        }
-        .onReceive(.didImportKeybindsSuccessfully) { _ in
-            model.importedSuccessfully()
-        }
-        .onReceive(.didExportKeybindsSuccessfully) { _ in
-            model.exportedSuccessfully()
         }
     }
 
