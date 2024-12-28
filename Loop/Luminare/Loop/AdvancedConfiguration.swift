@@ -39,10 +39,41 @@ class AdvancedConfigurationModel: ObservableObject {
         didSet { Defaults[.sizeIncrement] = sizeIncrement }
     }
 
+    @Published var didImportSuccessfullyAlert = false
+    @Published var didExportSuccessfullyAlert = false
+
     @Published var isAccessibilityAccessGranted = AccessibilityManager.getStatus()
     @Published var isScreenCaptureAccessGranted = ScreenCaptureManager.getStatus()
     @Published var accessibilityChecker: Publishers.Autoconnect<Timer.TimerPublisher> = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @Published var accessibilityChecks: Int = 0
+
+    func importedSuccessfully() {
+        DispatchQueue.main.async { [weak self] in
+            withAnimation(.smooth(duration: 0.5)) {
+                self?.didImportSuccessfullyAlert = true
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
+            withAnimation(.smooth(duration: 0.5)) {
+                self?.didImportSuccessfullyAlert = false
+            }
+        }
+    }
+
+    func exportedSuccessfully() {
+        DispatchQueue.main.async { [weak self] in
+            withAnimation(.smooth(duration: 0.5)) {
+                self?.didExportSuccessfullyAlert = true
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
+            withAnimation(.smooth(duration: 0.5)) {
+                self?.didExportSuccessfullyAlert = false
+            }
+        }
+    }
 
     func beginAccessibilityAccessRequest() {
         accessibilityChecker = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -73,6 +104,12 @@ struct AdvancedConfigurationView: View {
     let elementHeight: CGFloat = 34
 
     var body: some View {
+        generalSection()
+        keybindsSection()
+        permissionsSection()
+    }
+
+    func generalSection() -> some View {
         LuminareSection("General") {
             if #available(macOS 15.0, *) {
                 LuminareToggle("Use macOS window manager when available", isOn: $model.useSystemWindowManagerWhenAvailable)
@@ -96,15 +133,37 @@ struct AdvancedConfigurationView: View {
                 lowerClamp: true
             )
         }
+    }
 
+    func keybindsSection() -> some View {
         LuminareSection("Keybinds") {
             HStack(spacing: 2) {
-                Button("Import") {
+                Button {
                     WindowAction.importPrompt()
+                } label: {
+                    HStack {
+                        Text("Import")
+
+                        if model.didImportSuccessfullyAlert {
+                            Image(systemName: "checkmark")
+                                .foregroundStyle(tintColor())
+                                .bold()
+                        }
+                    }
                 }
 
-                Button("Export") {
+                Button {
                     WindowAction.exportPrompt()
+                } label: {
+                    HStack {
+                        Text("Export")
+
+                        if model.didExportSuccessfullyAlert {
+                            Image(systemName: "checkmark")
+                                .foregroundStyle(tintColor())
+                                .bold()
+                        }
+                    }
                 }
 
                 Button("Reset") {
@@ -113,7 +172,15 @@ struct AdvancedConfigurationView: View {
                 .buttonStyle(LuminareDestructiveButtonStyle())
             }
         }
+        .onReceive(.didImportKeybindsSuccessfully) { _ in
+            model.importedSuccessfully()
+        }
+        .onReceive(.didExportKeybindsSuccessfully) { _ in
+            model.exportedSuccessfully()
+        }
+    }
 
+    func permissionsSection() -> some View {
         LuminareSection("Permissions") {
             accessibilityComponent()
             screenCaptureComponent()

@@ -82,6 +82,7 @@ extension WindowAction {
             guard result == .OK, let destUrl = savePanel.url else { return }
             do {
                 try data.write(to: destUrl)
+                Notification.Name.didExportKeybindsSuccessfully.post()
             } catch {
                 print("Error writing to file: \(error.localizedDescription)")
             }
@@ -169,12 +170,16 @@ extension WindowAction {
                         !Defaults[.keybinds].contains { $0.keybind == savedKeybind.keybind && $0.name == savedKeybind.name }
                     }
                     Defaults[.keybinds].append(contentsOf: newKeybinds)
+
                     // Post a notification after updating the keybinds
-                    NotificationCenter.default.post(name: .keybindsUpdated, object: nil)
+                    Notification.Name.keybindsUpdated.post()
+                    Notification.Name.didImportKeybindsSuccessfully.post()
                 case .erase:
                     Defaults[.keybinds] = actions
+
                     // Post a notification after updating the keybinds
-                    NotificationCenter.default.post(name: .keybindsUpdated, object: nil)
+                    Notification.Name.keybindsUpdated.post()
+                    Notification.Name.didImportKeybindsSuccessfully.post()
                 case .cancel:
                     // No action needed, no notification should be posted
                     break
