@@ -116,6 +116,15 @@ struct KeybindItemView: View {
                     .modifier(LuminareBordered())
             } else {
                 HStack(spacing: 6) {
+                    let hasConflicts = hasDuplicateKeybinds()
+
+                    if hasConflicts {
+                        LuminareInfoView(
+                            "There are other keybinds that conflict with this key combination.",
+                            .red
+                        )
+                    }
+
                     HStack {
                         ForEach(triggerKey.sorted().compactMap(\.systemImage), id: \.self) { image in
                             Text("\(Image(systemName: image))")
@@ -129,6 +138,7 @@ struct KeybindItemView: View {
                     Image(systemName: "plus")
 
                     Keycorder($keybind)
+                        .opacity(hasConflicts ? 0.5 : 1)
                 }
                 .fixedSize()
             }
@@ -180,6 +190,13 @@ struct KeybindItemView: View {
         }
         .buttonStyle(CompactButtonStyle())
         .help("Customize this keybind's action.")
+    }
+
+    /// Checks if there are any existing keybinds with the same key combination
+    func hasDuplicateKeybinds() -> Bool {
+        Defaults[.keybinds]
+            .filter { $0.keybind == keybind.keybind }
+            .count > 1
     }
 
     func directionPicker() -> some View {
