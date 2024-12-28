@@ -103,6 +103,13 @@ private extension LoopManager {
             return
         }
 
+        // Record the first frame in advance if the preview window is disabled
+        if let targetWindow,
+           !WindowRecords.hasBeenRecorded(targetWindow),
+           !Defaults[.previewVisibility] {
+            WindowRecords.recordFirst(for: targetWindow)
+        }
+
         // Only recalculate wallpaper colors if Loop was last triggered over 5 seconds ago
         if Defaults[.processWallpaper], lastLoopActivation.distance(to: .now) > 5.0 {
             Task {

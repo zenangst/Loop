@@ -38,7 +38,7 @@ enum WindowRecords {
 
     /// This will erase ALL previous records of the window, and start a fresh new record for the selected window.
     /// - Parameter window: Window to record
-    private static func recordFirst(for window: Window) {
+    static func recordFirst(for window: Window) {
         WindowRecords.records.removeAll {
             $0.cgWindowID == window.cgWindowID
         }

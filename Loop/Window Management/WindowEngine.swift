@@ -114,7 +114,6 @@ enum WindowEngine {
             // Fixes an issue where window isn't resized correctly on multi-monitor setups
             // If window is being animated, then the size is very likely to already be correct, as what's really happening is window.setFrame at a really high rate.
             if !animate, !window.frame.approximatelyEqual(to: targetFrame) {
-                print("Backup resizing...")
                 window.setFrame(targetFrame)
             }
 
