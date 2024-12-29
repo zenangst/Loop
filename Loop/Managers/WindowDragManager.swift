@@ -138,7 +138,7 @@ class WindowDragManager {
 
         previewController.setScreen(to: screen)
 
-        let inset: CGFloat = 2
+        let inset = Defaults[.snapThreshold]
         let topInset = max(screen.menubarHeight / 2, inset)
         var ignoredFrame = screenFrame
 
