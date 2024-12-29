@@ -72,12 +72,7 @@ struct IconView: View {
                 .animation(LuminareConstants.fastAnimation, value: first)
         } else {
             ZStack {
-                if let icon = action.icon {
-                    icon
-                        .font(.system(size: 8))
-                        .fontWeight(.bold)
-                        .frame(width: size.width, height: size.height)
-                } else {
+                if frame.size.area != 0 {
                     ZStack {
                         RoundedRectangle(cornerRadius: outerCornerRadius - inset)
                             .frame(
@@ -98,6 +93,23 @@ struct IconView: View {
                             refreshFrame()
                         }
                     }
+                } else {
+                    Group {
+                        if let icon = action.icon {
+                            icon
+                                .font(.system(size: 8))
+                                .fontWeight(.bold)
+                        } else if action.direction == .cycle {
+                            Image(._18PxRepeat4)
+                                .resizable()
+                                .scaledToFit()
+                        } else {
+                            Image(._18PxRuler)
+                                .resizable()
+                                .scaledToFit()
+                        }
+                    }
+                    .frame(width: size.width, height: size.height)
                 }
             }
             .clipShape(.rect(cornerRadius: outerCornerRadius - inset))
