@@ -183,7 +183,7 @@ struct CustomActionConfigurationView: View {
                     columns: 3,
                     roundTop: false
                 ) { anchor in
-                    IconView(action: .constant(anchor.iconAction))
+                    IconView(action: anchor.iconAction)
                 }
 
                 if action.anchor ?? .center == .center || action.anchor == .macOSCenter {
