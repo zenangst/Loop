@@ -110,6 +110,10 @@ extension Defaults.Keys {
     /// Reset with `defaults delete com.MrKai77.Loop paddingMinimumScreenSize`
     static let paddingMinimumScreenSize = Key<CGFloat>("paddingMinimumScreenSize", default: 0, iCloud: true)
 
+    /// Adjust with `defaults write com.MrKai77.Loop snapThreshold -float x`
+    /// Reset with `defaults delete com.MrKai77.Loop snapThreshold`
+    static let snapThreshold = Key<CGFloat>("snapThreshold", default: 2, iCloud: true)
+
     // Radial Menu
     // It is not recommended to manually edit these entries yet, as it has not been tested.
     static let radialMenuTop = Key<WindowAction>(
