@@ -175,7 +175,7 @@ struct KeybindItemView: View {
         } label: {
             HStack(spacing: 0) {
                 HStack(spacing: 8) {
-                    IconView(action: $keybind)
+                    IconView(action: keybind)
 
                     Text(keybind.getName())
                         .lineLimit(1)
@@ -227,7 +227,7 @@ struct KeybindItemView: View {
                 sections + [moreSection]
             ) { item in
                 HStack(spacing: 8) {
-                    IconView(action: .constant(.init(item)))
+                    IconView(action: .init(item))
                     Text(item.name)
                 }
             }

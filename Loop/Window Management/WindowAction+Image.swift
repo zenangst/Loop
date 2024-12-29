@@ -57,16 +57,19 @@ extension WindowAction {
 }
 
 struct IconView: View {
-    @Binding var action: WindowAction
-    @State var frame: CGRect = .init(x: 0, y: 0, width: 1, height: 1)
+    let action: WindowAction
 
-    let size = CGSize(width: 14, height: 10)
-    let inset: CGFloat = 2
-    let outerCornerRadius: CGFloat = 3
+    @State private var frame: CGRect = .init(x: 0, y: 0, width: 1, height: 1)
+
+    private let size = CGSize(width: 14, height: 10)
+    private let inset: CGFloat = 2
+    private let outerCornerRadius: CGFloat = 3
 
     var body: some View {
         if action.direction == .cycle, let first = action.cycle?.first {
-            IconView(action: .constant(first))
+            IconView(action: first)
+                .id(first.id)
+                .animation(LuminareConstants.fastAnimation, value: first)
         } else {
             ZStack {
                 if let icon = action.icon {
