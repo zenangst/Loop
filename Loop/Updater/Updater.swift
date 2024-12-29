@@ -183,7 +183,7 @@ class Updater: ObservableObject {
                     reference = Int(Range(match.range(at: 1), in: line).flatMap { String(line[$0]) } ?? "")
                 }
 
-                let emoji = String(line.prefix(1))
+                let emoji = line.unicodeScalars.first(where: \.properties.isEmoji) ?? currentSection?.unicodeScalars.first(where: \.properties.isEmoji) ?? "🔄"
 
                 let text = line
                     .suffix(line.count - 1)
@@ -191,7 +191,7 @@ class Updater: ObservableObject {
                     .replacingOccurrences(of: #"\(@.*\)"#, with: "", options: .regularExpression) // Remove author
                     .trimmingCharacters(in: .whitespacesAndNewlines)
 
-                changelog[index].body.append(.init(emoji: emoji, text: text, user: user, reference: reference))
+                changelog[index].body.append(.init(emoji: String(emoji), text: text, user: user, reference: reference))
             }
         }
     }
