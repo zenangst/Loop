@@ -41,6 +41,7 @@ struct UpdateView: View {
                 Button("Remind me later") {
                     AppDelegate.updater.dismissWindow()
                 }
+                .disabled(isInstalling || readyToRestart)
 
                 Button {
                     if readyToRestart {
