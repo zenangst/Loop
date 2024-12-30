@@ -15,7 +15,6 @@ extension Notification.Name {
     static let activeStateChanged = Notification.Name("activeStateChanged")
 
     static let systemWindowManagerStateChanged = Notification.Name("systemWindowManagerStateChanged")
-    static let keybindsUpdated = Notification.Name("keybindsUpdated")
 
     static let didImportKeybindsSuccessfully = Notification.Name("didImportKeybindsSuccessfully")
     static let didExportKeybindsSuccessfully = Notification.Name("didExportKeybindsSuccessfully")

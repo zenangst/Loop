@@ -9,18 +9,6 @@ import AppKit
 import Defaults
 import Foundation
 
-/// Represents an error that can occur in the RectangleTranslationLayer.
-enum RectangleTranslationLayerError: Error {
-    case dataLoadFailed
-
-    var localizedString: String {
-        switch self {
-        case .dataLoadFailed:
-            "Failed to convert string to data."
-        }
-    }
-}
-
 /// Represents a keyboard shortcut configuration for a Rectangle action.
 struct RectangleShortcut: Codable {
     let keyCode: Int
@@ -57,29 +45,25 @@ enum RectangleTranslationLayer {
     /// Imports the keybinds from a JSON string.
     /// - Parameter jsonString: The JSON string to import the keybinds from.
     /// - Returns: An array of WindowAction instances corresponding to the keybinds.
-    static func importKeybinds(from jsonString: String) throws -> [WindowAction] {
-        guard let data = jsonString.data(using: .utf8) else {
-            throw RectangleTranslationLayerError.dataLoadFailed
-        }
-
+    static func importKeybinds(from data: Data) throws -> [SavedWindowActionFormat] {
         let rectangleConfig = try JSONDecoder().decode(RectangleConfig.self, from: data)
-        let windowActions = translateRectangleConfigToWindowActions(rectangleConfig: rectangleConfig)
 
-        return windowActions
-    }
-
-    /// Translates the RectangleConfig to an array of WindowActions for Loop.
-    /// - Parameter rectangleConfig: The RectangleConfig instance to translate.
-    /// - Returns: An array of WindowAction instances corresponding to the RectangleConfig.
-    private static func translateRectangleConfigToWindowActions(rectangleConfig: RectangleConfig) -> [WindowAction] {
         // Converts the Rectangle shortcuts into Loop's WindowActions.
-        rectangleConfig.shortcuts.compactMap { direction, shortcut in
-            guard let loopDirection = directionMapping[direction], !direction.contains("Todo") else { return nil }
-            return WindowAction(
+        let windowActions: [SavedWindowActionFormat] = rectangleConfig.shortcuts.compactMap { direction, shortcut in
+            guard
+                let loopDirection = directionMapping[direction],
+                !direction.contains("Todo")
+            else {
+                return nil
+            }
+
+            return SavedWindowActionFormat(.init(
                 loopDirection,
                 keybind: Set([CGKeyCode(shortcut.keyCode)]), // Converts the integer keyCode to CGKeyCode.
                 name: direction.capitalized.replacingOccurrences(of: " ", with: "") + "Cycle"
-            )
+            ))
         }
+
+        return windowActions
     }
 }

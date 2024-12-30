@@ -157,7 +157,13 @@ struct AdvancedConfigurationView: View {
         LuminareSection("Keybinds") {
             HStack(spacing: 2) {
                 Button {
-                    WindowAction.importPrompt()
+                    Task {
+                        do {
+                            try await Migrator.importPrompt()
+                        } catch {
+                            print("Error importing keybinds: \(error)")
+                        }
+                    }
                 } label: {
                     HStack {
                         Text("Import")
@@ -174,7 +180,13 @@ struct AdvancedConfigurationView: View {
                 }
 
                 Button {
-                    WindowAction.exportPrompt()
+                    Task {
+                        do {
+                            try await Migrator.exportPrompt()
+                        } catch {
+                            print("Error exporting keybinds: \(error)")
+                        }
+                    }
                 } label: {
                     HStack {
                         Text("Export")
@@ -193,7 +205,6 @@ struct AdvancedConfigurationView: View {
                 Button {
                     Defaults.reset(.keybinds)
                     model.resetSuccessfully()
-                    Notification.Name.keybindsUpdated.post()
                 } label: {
                     HStack {
                         Text("Reset")
