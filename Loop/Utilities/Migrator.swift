@@ -356,7 +356,7 @@ private extension Migrator {
         alert.informativeText = informativeText
         buttons.forEach { alert.addButton(withTitle: $0) }
 
-        return alert.runModal()
+        return await alert.beginSheetModal(for: NSApplication.shared.mainWindow ?? NSApp.keyWindow ?? NSApp.windows[0])
     }
 
     /// Enum to represent the decision made in the import decision alert.
