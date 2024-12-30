@@ -98,6 +98,8 @@ struct BehaviorConfigurationView: View {
         }
 
         LuminareSection("Window") {
+            LuminareToggle("Move window to cursor's screen", isOn: $model.useScreenWithCursor)
+
             if #available(macOS 15, *) {
                 LuminareToggle(
                     "Window snapping",
@@ -111,7 +113,7 @@ struct BehaviorConfigurationView: View {
             // Enabling the system window manager will override these options anyway, so hide them
             if !model.useSystemWindowManagerWhenAvailable {
                 LuminareToggle("Restore window frame on drag", isOn: $model.restoreWindowFrameOnDrag)
-                LuminareToggle("Include padding", isOn: $model.enablePadding)
+                LuminareToggle("Apply padding", isOn: $model.enablePadding)
 
                 if model.enablePadding {
                     Button("Configure padding…") {
@@ -129,7 +131,6 @@ struct BehaviorConfigurationView: View {
         }
 
         LuminareSection("Cursor") {
-            LuminareToggle("Use screen with cursor", isOn: $model.useScreenWithCursor)
             LuminareToggle(
                 "Move cursor with window",
                 info: model.previewVisibility ? nil : .init("Cannot be enabled when the preview is disabled."),
