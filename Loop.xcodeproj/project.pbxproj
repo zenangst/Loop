@@ -16,7 +16,7 @@
 		4CD883A42C30F0D7009A132A /* WallpaperColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CD883A32C30F0D7009A132A /* WallpaperColors.swift */; };
 		A8055EC22AFEDE0B00459D13 /* Keycorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8055EC12AFEDE0B00459D13 /* Keycorder.swift */; };
 		A80900D52AA3F9F30085C63B /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80900D32AA3F9F20085C63B /* VisualEffectView.swift */; };
-		A80D49BB2BAE479900493B67 /* WindowAction+Port.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80D49BA2BAE479900493B67 /* WindowAction+Port.swift */; };
+		A80D49BB2BAE479900493B67 /* Migrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80D49BA2BAE479900493B67 /* Migrator.swift */; };
 		A81B98182BDC854F005FD78C /* AboutConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81B98172BDC854F005FD78C /* AboutConfiguration.swift */; };
 		A81D8D0A2C068B8700188E12 /* LuminarePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81D8D092C068B8700188E12 /* LuminarePreviewView.swift */; };
 		A81D8D0C2C06950000188E12 /* LuminareManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81D8D0B2C06950000188E12 /* LuminareManager.swift */; };
@@ -103,7 +103,7 @@
 		A80521312A84878200BF7E22 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		A8055EC12AFEDE0B00459D13 /* Keycorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keycorder.swift; sourceTree = "<group>"; };
 		A80900D32AA3F9F20085C63B /* VisualEffectView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
-		A80D49BA2BAE479900493B67 /* WindowAction+Port.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WindowAction+Port.swift"; sourceTree = "<group>"; };
+		A80D49BA2BAE479900493B67 /* Migrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migrator.swift; sourceTree = "<group>"; };
 		A80FB1EB2C99152300139B4A /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		A81B98172BDC854F005FD78C /* AboutConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutConfiguration.swift; sourceTree = "<group>"; };
 		A81D8D092C068B8700188E12 /* LuminarePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LuminarePreviewView.swift; sourceTree = "<group>"; };
@@ -225,6 +225,7 @@
 				A8D4327A2C13ED3C007BE4F2 /* Icon.swift */,
 				A867C20D2C26522B005831BC /* Observer.swift */,
 				A8D6D3002B6C894C0061B11F /* PaddingModel.swift */,
+				A80D49BA2BAE479900493B67 /* Migrator.swift */,
 				4C0F2ACE2C3CFD09006CB34D /* RectangleTranslationLayer.swift */,
 				A86B97AC2AB79E2500099D7F /* ShakeEffect.swift */,
 				A80900D32AA3F9F20085C63B /* VisualEffectView.swift */,
@@ -305,7 +306,6 @@
 				A8BC4A6D2C2F4C9800B94B82 /* Window.swift */,
 				A8878A242AA3B2C800850A66 /* WindowTransformAnimation.swift */,
 				A8F0125A2AEDD7660017307F /* WindowAction.swift */,
-				A80D49BA2BAE479900493B67 /* WindowAction+Port.swift */,
 				0A6DC3EA2BB869DE002AB05F /* WindowAction+Image.swift */,
 				A8330AD32A3AC27600673C8D /* WindowDirection.swift */,
 				A85DDBD92C1693D4008C103D /* WindowDirection+Snapping.swift */,
@@ -588,7 +588,7 @@
 				A82DDBDE2AEC736300D7F974 /* AnimationConfiguration.swift in Sources */,
 				A8789F6729805B190040512E /* RadialMenuView.swift in Sources */,
 				A8330ABD2A3AC0CA00673C8D /* Bundle+Extensions.swift in Sources */,
-				A80D49BB2BAE479900493B67 /* WindowAction+Port.swift in Sources */,
+				A80D49BB2BAE479900493B67 /* Migrator.swift in Sources */,
 				4C0F2ACF2C3CFD09006CB34D /* RectangleTranslationLayer.swift in Sources */,
 				A8D4327B2C13ED3C007BE4F2 /* Icon.swift in Sources */,
 				A86B97AD2AB79E2500099D7F /* ShakeEffect.swift in Sources */,

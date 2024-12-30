@@ -10,10 +10,6 @@ import Luminare
 import SwiftUI
 
 class KeybindsConfigurationModel: ObservableObject {
-    @Published var triggerKey = Defaults[.triggerKey] {
-        didSet { Defaults[.triggerKey] = triggerKey }
-    }
-
     @Published var triggerDelay = Defaults[.triggerDelay] {
         didSet { Defaults[.triggerDelay] = triggerDelay }
     }
@@ -26,10 +22,6 @@ class KeybindsConfigurationModel: ObservableObject {
         didSet { Defaults[.middleClickTriggersLoop] = middleClickTriggersLoop }
     }
 
-    @Published var keybinds = Defaults[.keybinds] {
-        didSet { Defaults[.keybinds] = keybinds }
-    }
-
     @Published var currentEventMonitor: NSEventMonitor?
     @Published var selectedKeybinds = Set<WindowAction>()
 }
@@ -37,10 +29,13 @@ class KeybindsConfigurationModel: ObservableObject {
 struct KeybindsConfigurationView: View {
     @StateObject private var model = KeybindsConfigurationModel()
 
+    @Default(.triggerKey) var triggerKey
+    @Default(.keybinds) var keybinds
+
     var body: some View {
         LuminareSection("Trigger Key", noBorder: true) {
             // TODO: Make long trigger keys fit in bounds
-            TriggerKeycorder($model.triggerKey)
+            TriggerKeycorder($triggerKey)
                 .environmentObject(model)
         }
 
@@ -61,12 +56,10 @@ struct KeybindsConfigurationView: View {
 
         LuminareList(
             "Keybinds",
-            items: $model.keybinds,
+            items: $keybinds,
             selection: $model.selectedKeybinds,
             addAction: {
-                model.keybinds.insert(.init(.noAction), at: 0)
-                // Post a notification that the keybinds have been updated
-                NotificationCenter.default.post(name: .keybindsUpdated, object: nil)
+                keybinds.insert(.init(.noAction), at: 0)
             },
             content: { keybind in
                 KeybindItemView(keybind)
@@ -90,8 +83,5 @@ struct KeybindsConfigurationView: View {
             addText: "Add",
             removeText: "Remove"
         )
-        .onReceive(.keybindsUpdated) { _ in
-            model.keybinds = Defaults[.keybinds]
-        }
     }
 }
