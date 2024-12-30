@@ -126,14 +126,16 @@ enum Migrator {
             throw MigratorError.keybindsEmpty
         }
 
-        let directoryURL = try await getSaveDirectory()
+        let directoryURL = try await getSaveDirectoryURL()
         let keybinds = SavedKeybindsFormat.generateFromDefaults()
         try await saveKeybinds(keybinds, in: directoryURL)
+
+        Notification.Name.didExportKeybindsSuccessfully.post()
     }
 
     /// Presents a prompt to import keybinds from a JSON file.
     static func importPrompt() async throws {
-        let fileURL = try await getKeybindsFile()
+        let fileURL = try await getKeybindsFileURL()
         let jsonString = try String(contentsOf: fileURL)
 
         do {
@@ -159,9 +161,9 @@ enum Migrator {
 
 // MARK: Migrator + Export
 
-extension Migrator {
+private extension Migrator {
     @MainActor
-    private static func getSaveDirectory() async throws -> URL {
+    static func getSaveDirectoryURL() async throws -> URL {
         let savePanel = NSSavePanel()
         savePanel.directoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
         savePanel.title = .init(localized: "Export keybinds")
@@ -180,7 +182,7 @@ extension Migrator {
         return destUrl
     }
 
-    private static func saveKeybinds(_: SavedKeybindsFormat, in directoryURL: URL) async throws {
+    static func saveKeybinds(_: SavedKeybindsFormat, in directoryURL: URL) async throws {
         let keybinds = SavedKeybindsFormat.generateFromDefaults()
 
         let encoder = JSONEncoder()
@@ -201,10 +203,10 @@ extension Migrator {
 
 // MARK: Migrator + Import
 
-extension Migrator {
+private extension Migrator {
     /// Presents a file picker to select a keybinds file.
     @MainActor
-    private static func getKeybindsFile() async throws -> URL {
+    static func getKeybindsFileURL() async throws -> URL {
         let openPanel = NSOpenPanel()
         openPanel.title = .init(localized: "Select a keybinds file")
         openPanel.allowedContentTypes = [.json]
@@ -223,11 +225,12 @@ extension Migrator {
     }
 
     /// Imports keybinds from a JSON string.
-    private static func importKeybinds(from jsonString: String) async throws {
+    static func importKeybinds(from jsonString: String) async throws {
         guard let data = jsonString.data(using: .utf8) else {
             throw MigratorError.failedToReadFile
         }
 
+        /// First, try to import the general Loop keybinds format.
         do {
             let savedData = try await importLoopKeybinds(from: data)
             await updateDefaults(with: savedData)
@@ -236,6 +239,7 @@ extension Migrator {
             print("Error importing Loop keybinds: \(error)")
         }
 
+        /// If that fails, try to import the old Loop (pre 1.2.0) keybinds format.
         do {
             let savedData = try await importLoopLegacyKeybinds(from: data)
             await updateDefaults(with: savedData)
@@ -244,6 +248,7 @@ extension Migrator {
             print("Error importing Loop (pre 1.2.0) keybinds: \(error)")
         }
 
+        /// If that fails, try to import the Rectangle keybinds format.
         do {
             let savedData = try await importRectangleKeybinds(from: data)
             await updateDefaults(with: savedData)
@@ -257,21 +262,21 @@ extension Migrator {
     }
 
     /// Tries to import Loop's keybinds format.
-    private static func importLoopKeybinds(from data: Data) async throws -> SavedKeybindsFormat {
+    static func importLoopKeybinds(from data: Data) async throws -> SavedKeybindsFormat {
         let decoder = JSONDecoder()
         let keybinds = try decoder.decode(SavedKeybindsFormat.self, from: data)
         return keybinds
     }
 
     /// Tries to import Loop's old (pre 1.2.0) keybinds format.
-    private static func importLoopLegacyKeybinds(from data: Data) async throws -> SavedKeybindsFormat {
+    static func importLoopLegacyKeybinds(from data: Data) async throws -> SavedKeybindsFormat {
         let decoder = JSONDecoder()
         let keybinds = try decoder.decode([SavedWindowActionFormat].self, from: data)
         return SavedKeybindsFormat(version: nil, triggerKey: nil, actions: keybinds)
     }
 
     /// Tries to import Rectangle's keybinds format.
-    private static func importRectangleKeybinds(from data: Data) async throws -> SavedKeybindsFormat {
+    static func importRectangleKeybinds(from data: Data) async throws -> SavedKeybindsFormat {
         let keybinds = try RectangleTranslationLayer.importKeybinds(from: data)
         return SavedKeybindsFormat(version: nil, triggerKey: nil, actions: keybinds)
     }
@@ -279,7 +284,7 @@ extension Migrator {
     // MARK: Saving Imports
 
     /// Updates the app's defaults with the imported keybinds.
-    private static func updateDefaults(with savedData: SavedKeybindsFormat) async {
+    static func updateDefaults(with savedData: SavedKeybindsFormat) async {
         if let triggerKey = savedData.triggerKey {
             Defaults[.triggerKey] = triggerKey
         }
@@ -317,7 +322,7 @@ extension Migrator {
     }
 
     /// Presents a decision alert for how to handle imported keybinds.
-    private static func showAlertForImportDecision() async -> ImportDecision {
+    static func showAlertForImportDecision() async -> ImportDecision {
         await withCheckedContinuation { continuation in
             showAlert(
                 .init(localized: "Import Keybinds"),
@@ -341,7 +346,7 @@ extension Migrator {
     }
 
     /// Utility function to show an alert with a completion handler.
-    private static func showAlert(
+    static func showAlert(
         _ messageText: String,
         informativeText: String,
         buttons: [String] = [],
@@ -359,7 +364,7 @@ extension Migrator {
     }
 
     /// Enum to represent the decision made in the import decision alert.
-    private enum ImportDecision {
+    enum ImportDecision {
         case merge, erase, cancel
     }
 }
