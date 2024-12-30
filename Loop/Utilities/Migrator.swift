@@ -112,7 +112,7 @@ enum Migrator {
     static func exportPrompt() async throws {
         // Check if there are any keybinds to export.
         guard !Defaults[.keybinds].isEmpty else {
-            showAlert(
+            await showAlert(
                 .init(
                     localized: "Export empty keybinds alert title",
                     defaultValue: "No Keybinds Have Been Set"
@@ -142,7 +142,7 @@ enum Migrator {
             try await importKeybinds(from: jsonString)
         } catch {
             if case MigratorError.failedToReadFile = error {
-                showAlert(
+                await showAlert(
                     .init(
                         localized: "Error reading keybinds alert title",
                         defaultValue: "Error Reading Keybinds"
@@ -323,44 +323,40 @@ private extension Migrator {
 
     /// Presents a decision alert for how to handle imported keybinds.
     static func showAlertForImportDecision() async -> ImportDecision {
-        await withCheckedContinuation { continuation in
-            showAlert(
-                .init(localized: "Import Keybinds"),
-                informativeText: .init(localized: "Do you want to merge or erase existing keybinds?"),
-                buttons: [
-                    .init(localized: "Import keybinds: merge", defaultValue: "Merge"),
-                    .init(localized: "Import keybinds: erase", defaultValue: "Erase"),
-                    .init(localized: "Import keybinds: cancel", defaultValue: "Cancel")
-                ]
-            ) { response in
-                switch response {
-                case .alertFirstButtonReturn:
-                    continuation.resume(returning: .merge)
-                case .alertSecondButtonReturn:
-                    continuation.resume(returning: .erase)
-                default:
-                    continuation.resume(returning: .cancel)
-                }
-            }
+        let response = await showAlert(
+            .init(localized: "Import Keybinds"),
+            informativeText: .init(localized: "Do you want to merge or erase existing keybinds?"),
+            buttons: [
+                .init(localized: "Import keybinds: merge", defaultValue: "Merge"),
+                .init(localized: "Import keybinds: erase", defaultValue: "Erase"),
+                .init(localized: "Import keybinds: cancel", defaultValue: "Cancel")
+            ]
+        )
+
+        switch response {
+        case .alertFirstButtonReturn:
+            return .merge
+        case .alertSecondButtonReturn:
+            return .erase
+        default:
+            return .cancel
         }
     }
 
     /// Utility function to show an alert with a completion handler.
+    @MainActor
+    @discardableResult
     static func showAlert(
         _ messageText: String,
         informativeText: String,
-        buttons: [String] = [],
-        completion: ((NSApplication.ModalResponse) -> ())? = nil
-    ) {
+        buttons: [String] = []
+    ) async -> NSApplication.ModalResponse {
         let alert = NSAlert()
         alert.messageText = messageText
         alert.informativeText = informativeText
         buttons.forEach { alert.addButton(withTitle: $0) }
-        if let completion {
-            alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: completion)
-        } else {
-            alert.runModal()
-        }
+
+        return alert.runModal()
     }
 
     /// Enum to represent the decision made in the import decision alert.
