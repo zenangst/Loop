@@ -14,6 +14,7 @@
 		4C6B93E82C1DCF6E00AFF832 /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6B93E22C1DCF6E00AFF832 /* Updater.swift */; };
 		4C6B93E92C1DCF6E00AFF832 /* UpdateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6B93E32C1DCF6E00AFF832 /* UpdateView.swift */; };
 		4CD883A42C30F0D7009A132A /* WallpaperColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CD883A32C30F0D7009A132A /* WallpaperColors.swift */; };
+		A80554C22D234E5D009238C7 /* Luminare in Frameworks */ = {isa = PBXBuildFile; productRef = A80554C12D234E5D009238C7 /* Luminare */; };
 		A8055EC22AFEDE0B00459D13 /* Keycorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8055EC12AFEDE0B00459D13 /* Keycorder.swift */; };
 		A80900D52AA3F9F30085C63B /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80900D32AA3F9F20085C63B /* VisualEffectView.swift */; };
 		A80D49BB2BAE479900493B67 /* Migrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80D49BA2BAE479900493B67 /* Migrator.swift */; };
@@ -483,6 +484,7 @@
 			name = Loop;
 			packageProductDependencies = (
 				A8DCC97A2980D5F500D41065 /* Defaults */,
+				A80554C42D235233009238C7 /* Luminare */,
 			);
 			productName = WindowManager;
 			productReference = A8E59C35297F5E9A0064D4BA /* Loop.app */;
@@ -524,7 +526,7 @@
 			mainGroup = A8E59C2C297F5E9A0064D4BA;
 			packageReferences = (
 				A8DCC9792980D5F500D41065 /* XCRemoteSwiftPackageReference "Defaults" */,
-				A860324D2CB34A6C005742EB /* XCRemoteSwiftPackageReference "Luminare" */,
+				A80554C32D235233009238C7 /* XCRemoteSwiftPackageReference "Luminare" */,
 			);
 			productRefGroup = A8E59C36297F5E9A0064D4BA /* Products */;
 			projectDirPath = "";
@@ -890,11 +892,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		A860324D2CB34A6C005742EB /* XCRemoteSwiftPackageReference "Luminare" */ = {
+		A80554C32D235233009238C7 /* XCRemoteSwiftPackageReference "Luminare" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/MrKai77/Luminare";
 			requirement = {
-				branch = main;
+				branch = "loop-1.2.0";
 				kind = branch;
 			};
 		};
