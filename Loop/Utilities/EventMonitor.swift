@@ -20,7 +20,7 @@ class NSEventMonitor: EventMonitor, Identifiable, Equatable {
     private let scope: NSEventMonitor.Scope
     private let eventTypeMask: NSEvent.EventTypeMask
     private let eventHandler: (NSEvent) -> (NSEvent?)
-    
+
     var isEnabled: Bool = false
 
     enum Scope {
@@ -57,7 +57,7 @@ class NSEventMonitor: EventMonitor, Identifiable, Equatable {
                 }
             )
         }
-        
+
         isEnabled = true
     }
 
