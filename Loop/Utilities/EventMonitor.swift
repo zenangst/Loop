@@ -14,12 +14,13 @@ protocol EventMonitor {
 }
 
 class NSEventMonitor: EventMonitor, Identifiable, Equatable {
-    private weak var localEventMonitor: AnyObject?
-    private weak var globalEventMonitor: AnyObject?
+    private var localEventMonitor: Any?
+    private var globalEventMonitor: Any?
 
-    private var scope: NSEventMonitor.Scope
-    private var eventTypeMask: NSEvent.EventTypeMask
-    private var eventHandler: (NSEvent) -> (NSEvent?)
+    private let scope: NSEventMonitor.Scope
+    private let eventTypeMask: NSEvent.EventTypeMask
+    private let eventHandler: (NSEvent) -> (NSEvent?)
+    
     var isEnabled: Bool = false
 
     enum Scope {
@@ -42,35 +43,36 @@ class NSEventMonitor: EventMonitor, Identifiable, Equatable {
         if scope == .local || scope == .all {
             localEventMonitor = NSEvent.addLocalMonitorForEvents(
                 matching: eventTypeMask,
-                handler: eventHandler
-            ) as AnyObject
-
-            isEnabled = true
+                handler: { [weak self] event in
+                    self?.eventHandler(event)
+                }
+            )
         }
 
         if scope == .global || scope == .all {
             globalEventMonitor = NSEvent.addGlobalMonitorForEvents(
                 matching: eventTypeMask,
-                handler: { _ = self.eventHandler($0) }
-            ) as AnyObject
-
-            isEnabled = true
+                handler: { [weak self] event in
+                    _ = self?.eventHandler(event)
+                }
+            )
         }
+        
+        isEnabled = true
     }
 
     func stop() {
         if let localEventMonitor {
             NSEvent.removeMonitor(localEventMonitor)
-            isEnabled = false
         }
 
         if let globalEventMonitor {
             NSEvent.removeMonitor(globalEventMonitor)
-            isEnabled = false
         }
+        isEnabled = false
     }
 
-    var id = UUID()
+    let id = UUID()
     static func == (lhs: NSEventMonitor, rhs: NSEventMonitor) -> Bool {
         lhs.id == rhs.id
     }
