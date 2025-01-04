@@ -132,9 +132,14 @@ class Window {
     /// Activate the window. This will bring it to the front and focus it if possible
     func activate() {
         do {
-            try self.axWindow.setValue(.main, value: true)
+            // First activate the application to ensure proper window management context
             if let runningApplication = self.nsRunningApplication {
-                runningApplication.activate()
+                runningApplication.activate(options: .activateIgnoringOtherApps)
+            }
+
+            // Then set the window as main after a brief delay to ensure proper ordering
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                try? self.axWindow.setValue(.main, value: true)
             }
         } catch {
             print("Failed to activate window: \(error.localizedDescription)")

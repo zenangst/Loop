@@ -49,7 +49,14 @@ struct Keycorder: View {
                     .modifier(LuminareBordered())
             } else {
                 HStack(spacing: 5) {
-                    ForEach(selectionKeybind.sorted(), id: \.self) { key in
+                    // First show modifiers in order
+                    let sortedKeys = selectionKeybind.sorted { (a: CGKeyCode, b: CGKeyCode) in
+                        if a.isModifier, !b.isModifier { return true }
+                        if !a.isModifier, b.isModifier { return false }
+                        return a < b
+                    }
+
+                    ForEach(sortedKeys, id: \.self) { key in
                         if let systemImage = key.systemImage {
                             Text("\(Image(systemName: systemImage))")
                         } else if let humanReadable = key.humanReadable {
@@ -91,42 +98,57 @@ struct Keycorder: View {
         selectionKeybind = []
         isActive = true
         eventMonitor = NSEventMonitor(scope: .local, eventMask: [.keyDown, .keyUp, .flagsChanged]) { event in
-            if event.type == .flagsChanged {
-                if !Defaults[.triggerKey].contains(where: { $0.baseModifier == event.keyCode.baseModifier }) {
-                    shouldError = false
-                    selectionKeybind.insert(event.keyCode.baseModifier)
-                } else {
-                    if let systemImage = event.keyCode.baseModifier.systemImage {
-                        errorMessage = "\(Image(systemName: systemImage)) is already used as your trigger key."
-                    } else {
-                        errorMessage = "That key is already used as your trigger key."
-                    }
-
-                    shouldShake.toggle()
-                    shouldError = true
-                }
-            }
-
-            if event.type == .keyUp ||
-                (event.type == .flagsChanged && !selectionKeybind.isEmpty && event.modifierFlags.rawValue == 256) {
-                finishedObservingKeys()
-                return nil
-            }
-
+            // Handle regular key presses first
             if event.type == .keyDown, !event.isARepeat {
-                if event.keyCode == CGKeyCode.kVK_Escape {
+                if event.keyCode == .kVK_Escape {
                     finishedObservingKeys(wasForced: true)
                     return nil
                 }
 
+                // Get current modifiers that aren't trigger keys
+                let currentModifiers = event.modifierFlags
+                    .convertToCGKeyCode()
+                    .filter { !Defaults[.triggerKey].contains($0) }
+                    .sorted { a, b in
+                        // Sort modifiers to ensure consistent order
+                        // Command -> Option -> Control -> Shift -> Other keys
+                        let modifierOrder: [CGKeyCode] = [
+                            .kVK_Command,
+                            .kVK_Option,
+                            .kVK_Control,
+                            .kVK_Shift
+                        ]
+
+                        let aIndex = modifierOrder.firstIndex(of: a.baseModifier) ?? modifierOrder.count
+                        let bIndex = modifierOrder.firstIndex(of: b.baseModifier) ?? modifierOrder.count
+                        return aIndex < bIndex
+                    }
+
+                // Clear existing selection and add modifiers first
+                selectionKeybind.removeAll()
+
+                // Add modifiers in sorted order
+                for modifier in currentModifiers {
+                    selectionKeybind.insert(modifier)
+                }
+
+                // Then add the regular key if we're not at the limit
                 if (selectionKeybind.count + triggerKey.count) >= keyLimit {
                     errorMessage = "You can only use up to \(keyLimit) keys in a keybind, including the trigger key."
                     shouldShake.toggle()
                     shouldError = true
                 } else {
                     shouldError = false
-                    selectionKeybind.insert(event.keyCode)
+                    // Only add non-modifier keys
+                    if !event.keyCode.isModifier {
+                        selectionKeybind.insert(event.keyCode)
+                    }
                 }
+            }
+
+            if event.type == .keyUp {
+                finishedObservingKeys()
+                return nil
             }
 
             return nil
