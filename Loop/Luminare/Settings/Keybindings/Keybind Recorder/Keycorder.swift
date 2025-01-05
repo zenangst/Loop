@@ -105,45 +105,7 @@ struct Keycorder: View {
                     return nil
                 }
 
-                // Get current modifiers that aren't trigger keys
-                let currentModifiers = event.modifierFlags
-                    .convertToCGKeyCode()
-                    .filter { !Defaults[.triggerKey].contains($0) }
-                    .sorted { a, b in
-                        // Sort modifiers to ensure consistent order
-                        // Command -> Option -> Control -> Shift -> Other keys
-                        let modifierOrder: [CGKeyCode] = [
-                            .kVK_Command,
-                            .kVK_Option,
-                            .kVK_Control,
-                            .kVK_Shift
-                        ]
-
-                        let aIndex = modifierOrder.firstIndex(of: a.baseModifier) ?? modifierOrder.count
-                        let bIndex = modifierOrder.firstIndex(of: b.baseModifier) ?? modifierOrder.count
-                        return aIndex < bIndex
-                    }
-
-                // Clear existing selection and add modifiers first
-                selectionKeybind.removeAll()
-
-                // Add modifiers in sorted order
-                for modifier in currentModifiers {
-                    selectionKeybind.insert(modifier)
-                }
-
-                // Then add the regular key if we're not at the limit
-                if (selectionKeybind.count + triggerKey.count) >= keyLimit {
-                    errorMessage = "You can only use up to \(keyLimit) keys in a keybind, including the trigger key."
-                    shouldShake.toggle()
-                    shouldError = true
-                } else {
-                    shouldError = false
-                    // Only add non-modifier keys
-                    if !event.keyCode.isModifier {
-                        selectionKeybind.insert(event.keyCode)
-                    }
-                }
+                handleKeyDown(with: event)
             }
 
             if event.type == .keyUp {
@@ -156,6 +118,31 @@ struct Keycorder: View {
 
         eventMonitor!.start()
         model.currentEventMonitor = eventMonitor
+    }
+
+    /// Handles key presses and updates the current keybind
+    func handleKeyDown(with event: NSEvent) {
+        /// Get current selected keys that aren't modifiers
+        let currentKeys = selectionKeybind + [event.keyCode]
+            .filter { !$0.isModifier }
+
+        /// Get current modifiers that aren't trigger keys
+        let currentModifiers = event.modifierFlags
+            .convertToCGKeyCode()
+            .filter { !Defaults[.triggerKey].contains($0) }
+
+        let newSelection = Set(currentKeys + currentModifiers)
+
+        /// Make sure we don't go over the key limit
+        guard newSelection.count < keyLimit else {
+            errorMessage = "You can only use up to \(keyLimit) keys in a keybind, including the trigger key."
+            shouldShake.toggle()
+            shouldError = true
+            return
+        }
+
+        shouldError = false
+        selectionKeybind = newSelection
     }
 
     func finishedObservingKeys(wasForced: Bool = false) {
