@@ -12,6 +12,7 @@ import SwiftUI
 
 struct Keycorder: View {
     @EnvironmentObject private var model: KeybindsConfigurationModel
+    @Environment(\.appearsActive) private var appearsActive
 
     let keyLimit: Int = 6
 
@@ -84,12 +85,17 @@ struct Keycorder: View {
                 finishedObservingKeys(wasForced: true)
             }
         }
+        .onChange(of: appearsActive) { _ in
+            if appearsActive {
+                finishedObservingKeys(wasForced: true)
+            }
+        }
         .onChange(of: validCurrentKeybind) { _ in
             if selectionKeybind != validCurrentKeybind {
                 selectionKeybind = validCurrentKeybind
             }
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
         // Don't allow the button to be pressed if more than one keybind is selected in the list
         .allowsHitTesting(model.selectedKeybinds.count <= 1)
     }
@@ -97,7 +103,8 @@ struct Keycorder: View {
     func startObservingKeys() {
         selectionKeybind = []
         isActive = true
-        eventMonitor = NSEventMonitor(scope: .local, eventMask: [.keyDown, .keyUp, .flagsChanged]) { event in
+        eventMonitor = NSEventMonitor(scope: .local, eventMask: [.keyDown, .keyUp]) { event in
+
             // Handle regular key presses first
             if event.type == .keyDown, !event.isARepeat {
                 if event.keyCode == .kVK_Escape {
@@ -129,7 +136,11 @@ struct Keycorder: View {
         /// Get current modifiers that aren't trigger keys
         let currentModifiers = event.modifierFlags
             .convertToCGKeyCode()
-            .filter { !Defaults[.triggerKey].contains($0) }
+            .filter {
+                !Defaults[.triggerKey]
+                    .map(\.baseModifier)
+                    .contains($0)
+            }
 
         let newSelection = Set(currentKeys + currentModifiers)
 
