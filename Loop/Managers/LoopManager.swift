@@ -71,7 +71,7 @@ class LoopManager: ObservableObject {
     }
 
     // This is called when setting the trigger key, so that there aren't conflicting event monitors
-    func setFlagsObservers(scope: NSEventMonitor.Scope = .all) {
+    func setFlagsObservers(scope: NSEventMonitor.Scope) {
         flagsChangedEventMonitor?.stop()
 
         flagsChangedEventMonitor = NSEventMonitor(

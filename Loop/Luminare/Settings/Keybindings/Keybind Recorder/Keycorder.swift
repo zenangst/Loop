@@ -12,6 +12,7 @@ import SwiftUI
 
 struct Keycorder: View {
     @EnvironmentObject private var model: KeybindsConfigurationModel
+    @Environment(\.appearsActive) private var appearsActive
 
     let keyLimit: Int = 6
 
@@ -49,7 +50,14 @@ struct Keycorder: View {
                     .modifier(LuminareBordered())
             } else {
                 HStack(spacing: 5) {
-                    ForEach(selectionKeybind.sorted(), id: \.self) { key in
+                    // First show modifiers in order
+                    let sortedKeys = selectionKeybind.sorted { (a: CGKeyCode, b: CGKeyCode) in
+                        if a.isModifier, !b.isModifier { return true }
+                        if !a.isModifier, b.isModifier { return false }
+                        return a < b
+                    }
+
+                    ForEach(sortedKeys, id: \.self) { key in
                         if let systemImage = key.systemImage {
                             Text("\(Image(systemName: systemImage))")
                         } else if let humanReadable = key.humanReadable {
@@ -77,12 +85,17 @@ struct Keycorder: View {
                 finishedObservingKeys(wasForced: true)
             }
         }
+        .onChange(of: appearsActive) { _ in
+            if appearsActive {
+                finishedObservingKeys(wasForced: true)
+            }
+        }
         .onChange(of: validCurrentKeybind) { _ in
             if selectionKeybind != validCurrentKeybind {
                 selectionKeybind = validCurrentKeybind
             }
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
         // Don't allow the button to be pressed if more than one keybind is selected in the list
         .allowsHitTesting(model.selectedKeybinds.count <= 1)
     }
@@ -90,43 +103,21 @@ struct Keycorder: View {
     func startObservingKeys() {
         selectionKeybind = []
         isActive = true
-        eventMonitor = NSEventMonitor(scope: .local, eventMask: [.keyDown, .keyUp, .flagsChanged]) { event in
-            if event.type == .flagsChanged {
-                if !Defaults[.triggerKey].contains(where: { $0.baseModifier == event.keyCode.baseModifier }) {
-                    shouldError = false
-                    selectionKeybind.insert(event.keyCode.baseModifier)
-                } else {
-                    if let systemImage = event.keyCode.baseModifier.systemImage {
-                        errorMessage = "\(Image(systemName: systemImage)) is already used as your trigger key."
-                    } else {
-                        errorMessage = "That key is already used as your trigger key."
-                    }
+        eventMonitor = NSEventMonitor(scope: .local, eventMask: [.keyDown, .keyUp]) { event in
 
-                    shouldShake.toggle()
-                    shouldError = true
-                }
-            }
-
-            if event.type == .keyUp ||
-                (event.type == .flagsChanged && !selectionKeybind.isEmpty && event.modifierFlags.rawValue == 256) {
-                finishedObservingKeys()
-                return nil
-            }
-
+            // Handle regular key presses first
             if event.type == .keyDown, !event.isARepeat {
-                if event.keyCode == CGKeyCode.kVK_Escape {
+                if event.keyCode == .kVK_Escape {
                     finishedObservingKeys(wasForced: true)
                     return nil
                 }
 
-                if (selectionKeybind.count + triggerKey.count) >= keyLimit {
-                    errorMessage = "You can only use up to \(keyLimit) keys in a keybind, including the trigger key."
-                    shouldShake.toggle()
-                    shouldError = true
-                } else {
-                    shouldError = false
-                    selectionKeybind.insert(event.keyCode)
-                }
+                handleKeyDown(with: event)
+            }
+
+            if event.type == .keyUp {
+                finishedObservingKeys()
+                return nil
             }
 
             return nil
@@ -134,6 +125,35 @@ struct Keycorder: View {
 
         eventMonitor!.start()
         model.currentEventMonitor = eventMonitor
+    }
+
+    /// Handles key presses and updates the current keybind
+    func handleKeyDown(with event: NSEvent) {
+        /// Get current selected keys that aren't modifiers
+        let currentKeys = selectionKeybind + [event.keyCode]
+            .filter { !$0.isModifier }
+
+        /// Get current modifiers that aren't trigger keys
+        let currentModifiers = event.modifierFlags
+            .convertToCGKeyCode()
+            .filter {
+                !Defaults[.triggerKey]
+                    .map(\.baseModifier)
+                    .contains($0)
+            }
+
+        let newSelection = Set(currentKeys + currentModifiers)
+
+        /// Make sure we don't go over the key limit
+        guard newSelection.count < keyLimit else {
+            errorMessage = "You can only use up to \(keyLimit) keys in a keybind, including the trigger key."
+            shouldShake.toggle()
+            shouldError = true
+            return
+        }
+
+        shouldError = false
+        selectionKeybind = newSelection
     }
 
     func finishedObservingKeys(wasForced: Bool = false) {
