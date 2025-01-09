@@ -5,6 +5,7 @@
 //  Created by Kai Azim on 2023-06-18.
 //
 
+import Carbon
 import Cocoa
 import Defaults
 
@@ -40,9 +41,11 @@ class KeybindMonitor {
                 return Unmanaged.passUnretained(cgEvent)
             }
 
-            if event.type == .keyUp {
+            // MARK: Patch - Ignore the tab key
+
+            if event.type == .keyUp, event.keyCode != kVK_Tab {
                 KeybindMonitor.shared.pressedKeys.remove(event.keyCode.baseKey)
-            } else if event.type == .keyDown {
+            } else if event.type == .keyDown, event.keyCode != kVK_Tab {
                 KeybindMonitor.shared.pressedKeys.insert(event.keyCode.baseKey)
                 KeybindMonitor.shared.lastKey = event.keyCode.baseKey
             }
