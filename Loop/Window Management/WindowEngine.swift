@@ -80,7 +80,11 @@ enum WindowEngine {
 
         // If enhancedUI is enabled, then window animations will likely lag a LOT. So, if it's enabled, force-disable animations
         let enhancedUI = window.enhancedUserInterface
-        let animate = Defaults[.animateWindowResizes] && !enhancedUI
+        let animate: Bool = if let windowManagerDefaults = UserDefaults(suiteName: "com.apple.WindowManager") {
+            !windowManagerDefaults.bool(forKey: "DisableTilingAnimations")
+        } else {
+            Defaults[.animateWindowResizes] && !enhancedUI
+        }
 
         // If the window is one of Loop's windows, resize it using the actual NSWindow, preventing crashes
         if window.nsRunningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier,
