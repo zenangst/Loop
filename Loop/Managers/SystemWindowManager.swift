@@ -111,7 +111,15 @@ class SystemWindowManager {
         }
 
         static var padding: CGFloat {
-            windowManagerDefaults?.bool(forKey: "EnableTiledWindowMargins") ?? false ? 9 : 0
+            if windowManagerDefaults?.bool(forKey: "EnableTiledWindowMargins") == true {
+                if let customValue = windowManagerDefaults?.float(forKey: "TiledWindowSpacing") {
+                    CGFloat(customValue)
+                } else {
+                    8
+                }
+            } else {
+                0
+            }
         }
 
         static func syncPadding() {
