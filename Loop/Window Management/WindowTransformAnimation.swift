@@ -28,7 +28,7 @@ class WindowTransformAnimation: NSAnimation {
         self.bounds = bounds
         self.completionHandler = completionHandler
         super.init(duration: 0.3, animationCurve: .easeOut)
-        self.frameRate = Self.getCurrentRefreshRate() ?? 60.0
+        self.frameRate = Float(NSScreen.main?.displayMode?.refreshRate ?? 60.0)
         self.animationBlockingMode = .nonblocking
         self.lastWindowFrame = originalFrame
 
@@ -93,15 +93,5 @@ class WindowTransformAnimation: NSAnimation {
                 completionHandler()
             }
         }
-    }
-
-    static func getCurrentRefreshRate() -> Float? {
-        guard let activeScreen = NSScreen.main,
-              let screenNumber = activeScreen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID,
-              let displayMode = CGDisplayCopyDisplayMode(screenNumber) else {
-            return nil
-        }
-
-        return Float(displayMode.refreshRate)
     }
 }
