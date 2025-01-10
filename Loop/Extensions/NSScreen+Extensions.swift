@@ -16,6 +16,17 @@ extension NSScreen {
         return deviceDescription[key] as? CGDirectDisplayID
     }
 
+    var displayMode: CGDisplayMode? {
+        guard
+            let id = displayID,
+            let displayMode = CGDisplayCopyDisplayMode(id)
+        else {
+            return nil
+        }
+
+        return displayMode
+    }
+
     static var screenWithMouse: NSScreen? {
         let mouseLocation = NSEvent.mouseLocation
         let screens = NSScreen.screens

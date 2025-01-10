@@ -28,7 +28,7 @@ class WindowTransformAnimation: NSAnimation {
         self.bounds = bounds
         self.completionHandler = completionHandler
         super.init(duration: 0.3, animationCurve: .easeOut)
-        self.frameRate = 60.0
+        self.frameRate = Float(NSScreen.main?.displayMode?.refreshRate ?? 60.0)
         self.animationBlockingMode = .nonblocking
         self.lastWindowFrame = originalFrame
 
@@ -57,10 +57,10 @@ class WindowTransformAnimation: NSAnimation {
             let value = CGFloat(1.0 - pow(1.0 - currentValue, 3))
 
             var newFrame = CGRect(
-                x: originalFrame.origin.x + value * (targetFrame.origin.x - originalFrame.origin.x),
-                y: originalFrame.origin.y + value * (targetFrame.origin.y - originalFrame.origin.y),
-                width: originalFrame.size.width + value * (targetFrame.size.width - originalFrame.size.width),
-                height: originalFrame.size.height + value * (targetFrame.size.height - originalFrame.size.height)
+                x: round(originalFrame.origin.x + value * (targetFrame.origin.x - originalFrame.origin.x)),
+                y: round(originalFrame.origin.y + value * (targetFrame.origin.y - originalFrame.origin.y)),
+                width: round(originalFrame.size.width + value * (targetFrame.size.width - originalFrame.size.width)),
+                height: round(originalFrame.size.height + value * (targetFrame.size.height - originalFrame.size.height))
             )
 
             // Keep the window inside the bounds
@@ -78,8 +78,14 @@ class WindowTransformAnimation: NSAnimation {
                 }
             }
 
-            window.position = newFrame.origin
-            window.size = newFrame.size
+            if lastWindowFrame.origin != newFrame.origin {
+                window.position = newFrame.origin
+            }
+
+            if lastWindowFrame.size != newFrame.size {
+                window.size = newFrame.size
+            }
+
             lastWindowFrame = window.frame
 
             if currentProgress >= 1.0 {
