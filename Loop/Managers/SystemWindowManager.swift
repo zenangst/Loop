@@ -115,7 +115,11 @@ class SystemWindowManager {
         }
 
         static var padding: CGFloat {
-            windowManagerDefaults?.float(forKey: "TiledWindowSpacing") ?? 8
+            CGFloat(windowManagerDefaults?.float(forKey: "TiledWindowSpacing") ?? 8)
+        }
+
+        static var enableAnimations: Bool {
+            !(windowManagerDefaults?.bool(forKey: "DisableTilingAnimations") ?? false)
         }
 
         static func syncPadding() {

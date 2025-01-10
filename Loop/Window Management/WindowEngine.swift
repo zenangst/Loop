@@ -78,13 +78,7 @@ enum WindowEngine {
             WindowRecords.removeLastAction(for: window)
         }
 
-        // If enhancedUI is enabled, then window animations will likely lag a LOT. So, if it's enabled, force-disable animations
-        let enhancedUI = window.enhancedUserInterface
-        let animate: Bool = if let windowManagerDefaults = UserDefaults(suiteName: "com.apple.WindowManager") {
-            !windowManagerDefaults.bool(forKey: "DisableTilingAnimations")
-        } else {
-            Defaults[.animateWindowResizes] && !enhancedUI
-        }
+        let animate = shouldAnimateResize(for: window)
 
         // If the window is one of Loop's windows, resize it using the actual NSWindow, preventing crashes
         if window.nsRunningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier,
@@ -214,6 +208,29 @@ enum WindowEngine {
         let halfScreenHeight = screenHeight / 2
         let windowHeightPercent = windowHeight / screenHeight
         return (0.5 * windowHeightPercent - 0.5) * halfScreenHeight
+    }
+
+    /// Determines if a window resize should be animated by Loop or not.
+    /// Note that this does not affect the system window manager.
+    /// - Parameter window: The window to be resized
+    /// - Returns: Whether the window should be animated or not
+    private static func shouldAnimateResize(for window: Window) -> Bool {
+        // If enhancedUI is enabled, then window animations will likely lag a LOT. So, if it's enabled, force-disable animations
+        if window.enhancedUserInterface {
+            return false
+        }
+
+        // If the user has enabled the system window manager, then return the system's animation setting
+        if #available(macOS 15, *), Defaults[.useSystemWindowManagerWhenAvailable] {
+            return SystemWindowManager.MoveAndResize.enableAnimations
+        }
+
+        // If the user has disabled window animations, then return false
+        if !Defaults[.animateWindowResizes] {
+            return false
+        }
+
+        return true
     }
 
     /// Will move a window back onto the screen. To be run AFTER a window has been resized.
