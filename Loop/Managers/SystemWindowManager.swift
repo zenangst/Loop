@@ -110,24 +110,21 @@ class SystemWindowManager {
             windowManagerDefaults?.bool(forKey: "EnableTilingByEdgeDrag") ?? false
         }
 
+        static var enablePadding: Bool {
+            windowManagerDefaults?.bool(forKey: "EnableTiledWindowMargins") ?? false
+        }
+
         static var padding: CGFloat {
-            if windowManagerDefaults?.bool(forKey: "EnableTiledWindowMargins") == true {
-                if let customValue = windowManagerDefaults?.float(forKey: "TiledWindowSpacing") {
-                    CGFloat(customValue)
-                } else {
-                    8
-                }
-            } else {
-                0
-            }
+            windowManagerDefaults?.float(forKey: "TiledWindowSpacing") ?? 8
         }
 
         static func syncPadding() {
-            let newPadding = padding
+            let enablePadding = enablePadding
+            Defaults[.enablePadding] = enablePadding
 
-            Defaults[.enablePadding] = newPadding != 0
+            if enablePadding {
+                let newPadding = padding
 
-            if newPadding != 0 {
                 Defaults[.padding] = PaddingModel(
                     window: newPadding,
                     externalBar: 0,
